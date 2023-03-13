@@ -2,6 +2,7 @@ import HoloNet as hn
 
 import os
 from os import path
+import pickle
 import pandas as pd
 import numpy as np
 import scanpy as sc
@@ -46,14 +47,18 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 
 #Now we can build the multi-view CCC network:
 #We construct a expression dataframe
-if path.exists("output/elements_expr_df_"+name+".csv"):
-    elements_expr_df_dict = pd.read_csv("output/elements_expr_df_" + name + ".csv").to_dict()
+if path.exists("output/elements_expr_df_dict_"+name+".pkl"):
+    f = open("output/elements_expr_df_dict_"+name+".pkl", 'rb')
+    elements_expr_df_dict = pickle.load(f)
+    f.close()
 else:
     elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
                                                             cofactor_db, visium_example_dataset)
-    pd.DataFrame.from_dict(elements_expr_df_dict).to_csv("output/elements_expr_df_" + name + ".csv")
+    f = open("output/elements_expr_df_dict_"+name+".pkl", 'wb')
+    pickle.dump(elements_expr_df_dict, f)
+    f.close()
 #elements_expr_df_dict.to_csv("output/elements_expr_df_" + name + ".csv")
-print("Expr matrix shape: "+str(elements_expr_df_dict.shape))
+print("Expr matrix shape: "+str(len(elements_expr_df_dict)))
 
 #Now we compute the tensor of communication events
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
