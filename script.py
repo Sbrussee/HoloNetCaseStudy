@@ -29,7 +29,7 @@ palette=hn.brca_default_color_celltype, save="spatial.png")
 interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human')
 #Filter LR-pairs by occuring at a percentage of cells (0.3)
 if path.exists("output/expressed_lr_df_"+name+".csv"):
-    expressed_lr_df = pd.from_csv("output/expressed_lr_df_" + name + ".csv")
+    expressed_lr_df = pd.read_csv("output/expressed_lr_df_" + name + ".csv")
 else:
     expressed_lr_df = hn.pp.get_expressed_lr_df(interaction_db, complex_db, visium_example_dataset,
                                                 expressed_prop = 0.15)
@@ -47,7 +47,7 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 #Now we can build the multi-view CCC network:
 #We construct a expression dataframe
 if path.exists("output/elements_expr_df_"+name+".csv"):
-    elements_expr_df_dict = pd.from_csv("output/elements_expr_df_" + name + ".csv").to_dict()
+    elements_expr_df_dict = pd.read_csv("output/elements_expr_df_" + name + ".csv").to_dict()
 else:
     elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
                                                             cofactor_db, visium_example_dataset)
@@ -59,7 +59,7 @@ print("Expr matrix shape: "+str(elements_expr_df_dict.shape))
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
 #We can then filter the edges with low specifities
 if path.exists("outputs/filtered_ce_tensor_"+name+".csv"):
-    filtered_ce_tensor = pd.from_csv("output/filtered_ce_tensor_" + name + ".csv")
+    filtered_ce_tensor = pd.read_csv("output/filtered_ce_tensor_" + name + ".csv")
 else:
     filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, visium_example_dataset, expressed_lr_df,
                                                 elements_expr_df_dict, w_best)
