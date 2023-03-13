@@ -1,6 +1,7 @@
 import HoloNet as hn
 
 import os
+from os import path
 import pandas as pd
 import numpy as np
 import scanpy as sc
@@ -22,14 +23,17 @@ hn.pl.plot_cell_type_proportion(visium_example_dataset, plot_cell_type='stroma')
 
 #Cell type labels per spot
 sc.pl.spatial(visium_example_dataset, color=['cell_type'], size=1.4, alpha=0.7,
-palette=hn.brca_default_color_celltype, fname="output/spatial")
+palette=hn.brca_default_color_celltype, save="output/spatial")
 
 #Load human L-R database from CellChatDB, Connectome also possible
 interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human')
 #Filter LR-pairs by occuring at a percentage of cells (0.3)
-expressed_lr_df = hn.pp.get_expressed_lr_df(interaction_db, complex_db, visium_example_dataset,
-                                            expressed_prop = 0.15)
-expressed_lr_df.to_csv("output/expressed_lr_df_" + name + ".csv")
+if path.exists("output/expressed_lr_df_"+name_+".csv"):
+    expressed_lr_df = pd.from_csv("output/expressed_lr_df_" + name + ".csv")
+else:
+    expressed_lr_df = hn.pp.get_expressed_lr_df(interaction_db, complex_db, visium_example_dataset,
+                                                expressed_prop = 0.15)
+    expressed_lr_df.to_csv("output/expressed_lr_df_" + name + ".csv")
 print("LR dataframe shape: "+str(expressed_lr_df.shape))
 
 """
@@ -42,9 +46,12 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 
 #Now we can build the multi-view CCC network:
 #We construct a expression dataframe
+if path.exists("output/elements_expr_df_"+name_+".csv"):
+    elements_expr_df_dict = pd.from_csv("output/elements_expr_df_" + name + ".csv")
 elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
                                                         cofactor_db, visium_example_dataset)
-expressed_lr_df.to_csv("output/expressed_lr_df_" + name + ".csv")
+elements_expr_df_dict.to_csv("output/elements_expr_df_" + name + ".csv")
+print("Expr matrix shape: "+str(elements_expr_df_dict.shape))
 #Now we compute the tensor of communication events
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
 #We can then filter the edges with low specifities
