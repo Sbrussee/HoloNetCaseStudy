@@ -23,7 +23,7 @@ hn.pl.plot_cell_type_proportion(visium_example_dataset, plot_cell_type='stroma')
 
 #Cell type labels per spot
 sc.pl.spatial(visium_example_dataset, color=['cell_type'], size=1.4, alpha=0.7,
-palette=hn.brca_default_color_celltype, save="output/spatial")
+palette=hn.brca_default_color_celltype, save="output/spatial.png")
 
 #Load human L-R database from CellChatDB, Connectome also possible
 interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human')
@@ -52,6 +52,7 @@ elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, comple
                                                         cofactor_db, visium_example_dataset)
 elements_expr_df_dict.to_csv("output/elements_expr_df_" + name + ".csv")
 print("Expr matrix shape: "+str(elements_expr_df_dict.shape))
+
 #Now we compute the tensor of communication events
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
 #We can then filter the edges with low specifities
