@@ -47,7 +47,7 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 #Now we can build the multi-view CCC network:
 #We construct a expression dataframe
 if path.exists("output/elements_expr_df_"+name+".csv"):
-    elements_expr_df_dict = pd.from_dict(pd.from_csv("output/elements_expr_df_" + name + ".csv").to_dict()
+    elements_expr_df_dict = pd.from_csv("output/elements_expr_df_" + name + ".csv").to_dict()
 else:
     elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
                                                             cofactor_db, visium_example_dataset)
