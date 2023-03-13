@@ -24,6 +24,7 @@ interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human
 expressed_lr_df = hn.pp.get_expressed_lr_df(interaction_db, complex_db, visium_example_dataset,
                                             expressed_prop = 0.15)
 expressed_lr_df.to_csv("expressed_lr_df_" + name + ".csv")
+expressed_lr_df.write("expressed_lr_df_"+name+".h5ad", compression='gzip')
 print("LR dataframe shape: "+str(expressed_lr_df.shape))
 
 """
