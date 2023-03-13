@@ -10,6 +10,7 @@ import torch
 
 #Load example Visium dataset (24,923 genes, 3798 spots)
 visium_example_dataset = hn.pp.load_brca_visium_10x()
+name = 'brca_visium'
 #Plot cell type percentages
 hn.pl.plot_cell_type_proportion(visium_example_dataset, plot_cell_type='stroma')
 
@@ -22,6 +23,7 @@ interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human
 #Filter LR-pairs by occuring at a percentage of cells (0.3)
 expressed_lr_df = hn.pp.get_expressed_lr_df(interaction_db, complex_db, visium_example_dataset,
                                             expressed_prop = 0.15)
+expressed_lr_df.to_csv("expressed_lr_df_" + name + ".csv")
 print("LR dataframe shape: "+str(expressed_lr_df.shape))
 
 """
@@ -36,11 +38,13 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 #We construct a expression dataframe
 elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
                                                         cofactor_db, visium_example_dataset)
+expressed_lr_df.to_csv("expressed_lr_df_" + name + ".csv")
 #Now we compute the tensor of communication events
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
 #We can then filter the edges with low specifities
 filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, visium_example_dataset, expressed_lr_df,
                                             elements_expr_df_dict, w_best)
+filtered_ce_tensor.to_csv("filtered_ce_tensor_" + name + ".csv")
 
 #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
 #We can use either degree or eigenvector centrality as CE strength per cell/spot
