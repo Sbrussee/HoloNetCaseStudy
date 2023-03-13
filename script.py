@@ -23,7 +23,7 @@ hn.pl.plot_cell_type_proportion(visium_example_dataset, plot_cell_type='stroma')
 
 #Cell type labels per spot
 sc.pl.spatial(visium_example_dataset, color=['cell_type'], size=1.4, alpha=0.7,
-palette=hn.brca_default_color_celltype, save="output/spatial.png")
+palette=hn.brca_default_color_celltype, save="spatial.png")
 
 #Load human L-R database from CellChatDB, Connectome also possible
 interaction_db, cofactor_db, complex_db = hn.pp.load_lr_df(human_or_mouse='human')
