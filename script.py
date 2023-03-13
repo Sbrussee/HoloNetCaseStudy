@@ -29,7 +29,7 @@ As ligand molecules from a single source can only cover a limited region,
 We select a range around the ligand denoted as w_best
 """
 #We can select the default one for visium, we could specify it ourselves too
-w_best = hn.tl.default_w_visium()
+w_best = hn.tl.default_w_visium(visium_example_dataset)
 hn.pl.select_w(visium_example_dataset, w_best=w_best)
 
 #Now we can build the multi-view CCC network:
