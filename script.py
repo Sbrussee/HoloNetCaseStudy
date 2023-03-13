@@ -47,18 +47,23 @@ hn.pl.select_w(visium_example_dataset, w_best=w_best)
 #Now we can build the multi-view CCC network:
 #We construct a expression dataframe
 if path.exists("output/elements_expr_df_"+name+".csv"):
-    elements_expr_df_dict = pd.from_csv("output/elements_expr_df_" + name + ".csv")
-elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
-                                                        cofactor_db, visium_example_dataset)
-elements_expr_df_dict.to_csv("output/elements_expr_df_" + name + ".csv")
+    elements_expr_df_dict = pd.from_dict(pd.from_csv("output/elements_expr_df_" + name + ".csv").to_dict()
+else:
+    elements_expr_df_dict = hn.tl.elements_expr_df_calculate(expressed_lr_df, complex_db,
+                                                            cofactor_db, visium_example_dataset)
+    pd.DataFrame.from_dict(elements_expr_df_dict).to_csv("output/elements_expr_df_" + name + ".csv")
+#elements_expr_df_dict.to_csv("output/elements_expr_df_" + name + ".csv")
 print("Expr matrix shape: "+str(elements_expr_df_dict.shape))
 
 #Now we compute the tensor of communication events
 ce_tensor = hn.tl.compute_ce_tensor(expressed_lr_df, w_best, elements_expr_df_dict, visium_example_dataset)
 #We can then filter the edges with low specifities
-filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, visium_example_dataset, expressed_lr_df,
-                                            elements_expr_df_dict, w_best)
-filtered_ce_tensor.to_csv("output/filtered_ce_tensor_" + name + ".csv")
+if path.exists("outputs/filtered_ce_tensor_"+name+".csv"):
+    filtered_ce_tensor = pd.from_csv("output/filtered_ce_tensor_" + name + ".csv")
+else:
+    filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, visium_example_dataset, expressed_lr_df,
+                                                elements_expr_df_dict, w_best)
+    filtered_ce_tensor.to_csv("output/filtered_ce_tensor_" + name + ".csv")
 
 #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
 #We can use either degree or eigenvector centrality as CE strength per cell/spot
