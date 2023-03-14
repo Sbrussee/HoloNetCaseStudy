@@ -24,7 +24,7 @@ if torch.cuda.is_available():
     print("GPU available.")
 else:
     print("GPU unavailable")
-    
+
 #Load example Visium dataset (24,923 genes, 3798 spots)
 visium_example_dataset = hn.pp.load_brca_visium_10x()
 name = 'brca_visium'
@@ -81,8 +81,8 @@ class holonet_pipeline:
         if path.exists("output/expressed_lr_df_"+self.name+".csv"):
             self.expressed_lr_df = pd.read_csv("output/expressed_lr_df_" + self.name + ".csv")
         else:
-            self.expressed_lr_df = hn.pp.get_expressed_lr_df(self.interaction_db, self.complex_db, self.dataset,
-                                                             self.expressed_prop = 0.15)
+            self.expressed_lr_df = hn.pp.get_expressed_lr_df(self.interaction_db, self.complex_db,
+                                                             self.dataset, expressed_prop=0.15)
             self.expressed_lr_df.to_csv("output/expressed_lr_df_" + self.name + ".csv")
         print("LR dataframe shape: "+str(self.expressed_lr_df.shape))
 
