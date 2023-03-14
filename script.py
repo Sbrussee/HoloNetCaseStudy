@@ -45,23 +45,23 @@ class holonet_pipeline:
         self.name = name
         #visualize_dataset()
         #Load the Ligand-Receptor matrix
-        load_lr_df()
+        self.load_lr_df()
         #Create the Cellular Event tensor
-        load_ce_tensor()
+        self.load_ce_tensor()
         #Visualize each LR-pair
         for pair in self.list_of_target_lr:
-            visualize_ce_tensors(pair)
+            self.visualize_ce_tensors(pair)
         model_per_gene = {}
         #Select all target genes
         self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
         #Multitarget GCN training
-        multitarget_training()
+        self.multitarget_training()
         #Train a model per gene
         for gene in self.list_of_target_genes:
-            model_per_gene[gene] = train_gcn_model(gene)
+            model_per_gene[gene] = self.train_gcn_model(gene)
 
         for gene, model in model_per_gene.items():
-            visualize_gcn_output(gene, model)
+            self.visualize_gcn_output(gene, model)
 
 
 
@@ -246,10 +246,6 @@ class holonet_pipeline:
         #Save the GCN models
         hn.pr.save_model_list(self.MGC_model_type_GCN_list, project_name=name+"_GCN",
                               target_gene_name_list=self.used_gene_list)
-
-
-
-
 
 
 
