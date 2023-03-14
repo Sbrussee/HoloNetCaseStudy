@@ -61,10 +61,9 @@ class holonet_pipeline:
         #Visualize each LR-pair
         for pair in self.list_of_target_lr:
             self.visualize_ce_tensors(pair)
+
+        self.preprocessing_for_gcn_model()
         model_per_gene = {}
-        #Select all target genes
-        self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
-        #Multitarget GCN training
         self.multitarget_training()
         #Train a model per gene
         for gene in self.list_of_target_genes:
@@ -166,6 +165,15 @@ class holonet_pipeline:
         cell_cci_centrality=cell_cci_centrality,
         adata=self.dataset, fname='output/general_ce_hotspot_'+self.name+"_"+target_lr)
 
+    def preprocessing_for_gcn_model(self):
+        #Select all target genes
+        self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
+        #Now we need to build our feature matrix of cell types
+        self.cell_type_tensor, self.cell_type_names = hn.pr.continous_cell_type_tensor(self.dataset, continous_cell_type_slot="predicted_cell_type")
+        #And the adjancancy matrix of our cell network
+        self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
+                                                     only_between_cell_type=True)
+
     def train_gcn_model(self, gene):
         #Now we can train a GCN-model for predicting the gene expression of a specific gene
         #First, we need to select the target gene to predict
@@ -173,11 +181,6 @@ class holonet_pipeline:
                                          used_case_name=gene)
         sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}.png")
 
-        #Now we need to build our feature matrix of cell types
-        self.cell_type_tensor, self.cell_type_names = hn.pr.continous_cell_type_tensor(self.dataset, continous_cell_type_slot="predicted_cell_type")
-        #And the adjancancy matrix of our cell network
-        self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
-                                                     only_between_cell_type=True)
 
 
         #We can then train our model
@@ -277,6 +280,6 @@ if args.dataset == 'resolve':
             f.write(link.content)
     dataset = sc.read("data/resolve.h5ad")
     organism = 'mouse'
-    
+
 print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
