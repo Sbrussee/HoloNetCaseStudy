@@ -38,24 +38,6 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 
 args = parser.parse_args()
 
-print("args given: ", args)
-if args.dataset == 'brca_visium':
-    #Load example Visium dataset (24,923 genes, 3798 spots)
-    dataset = hn.pp.load_brca_visium_10x()
-    name = 'brca_visium'
-    organism = 'human'
-
-if args.dataset == 'resolve':
-    if not os.path.exists(dirpath+"/data"):
-        os.mkdir("data")
-    if not os.path.exists(dirpath+"/data/resolve.h5ad"):
-        print("Downloading RESOLVE dataset:")
-        link = requests.get("https://dl01.irc.ugent.be/spatial/adata_objects/adataA1-1.h5ad")
-        with open('data/resolve.h5ad', 'wb') as f:
-            f.write(link.content)
-    dataset = sc.read("data/resolve.h5ad")
-    organism = 'mouse'
-
 class holonet_pipeline:
     """
 
@@ -139,12 +121,12 @@ class holonet_pipeline:
                                                  self.elements_expr_df_dict, self.dataset)
         #We can then filter the edges with low specifities
         if path.exists("output/filtered_ce_tensor_"+self.name+".pkl"):
-            with open("ouput/filtered_ce_tensor_"+self.name+".pkl") as f:
+            with open("ouput/filtered_ce_tensor_"+self.name+".pkl", 'rb') as f:
                 self.filtered_ce_tensor = pickle.load(f)
         else:
             self.filtered_ce_tensor = hn.tl.filter_ce_tensor(self.ce_tensor, self.dataset, self.expressed_lr_df,
                                                              self.elements_expr_df_dict, self.w_best)
-            with open("output/filtered_ce_tensor_"+self.name+".pkl") as f:
+            with open("output/filtered_ce_tensor_"+self.name+".pkl", 'wb') as f:
                 pickle.dump(self.filtered_ce_tensor, f)
 
     def visualize_ce_tensors(self, target_lr="TGFB1:(TGFBR1+TGFBR2)"):
@@ -278,4 +260,23 @@ class holonet_pipeline:
 
 
 
+print("args given: ", args)
+if args.dataset == 'brca_visium':
+    #Load example Visium dataset (24,923 genes, 3798 spots)
+    dataset = hn.pp.load_brca_visium_10x()
+    name = 'brca_visium'
+    organism = 'human'
+
+if args.dataset == 'resolve':
+    if not os.path.exists(dirpath+"/data"):
+        os.mkdir("data")
+    if not os.path.exists(dirpath+"/data/resolve.h5ad"):
+        print("Downloading RESOLVE dataset:")
+        link = requests.get("https://dl01.irc.ugent.be/spatial/adata_objects/adataA1-1.h5ad")
+        with open('data/resolve.h5ad', 'wb') as f:
+            f.write(link.content)
+    dataset = sc.read("data/resolve.h5ad")
+    organism = 'mouse'
+    
+print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
