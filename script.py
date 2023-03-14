@@ -2,6 +2,8 @@ import HoloNet as hn
 
 import os
 from os import path
+import requests
+import argparse
 import pickle
 import pandas as pd
 import numpy as np
@@ -10,25 +12,47 @@ import squidpy as sq
 import matplotlib.pyplot as plt
 import torch
 
+#Remove warnings from output
 import warnings
 warnings.filterwarnings('ignore')
 hn.set_figure_params(tex_fonts=False)
 sc.settings.figdir = './figures/'
 
+#Get current directory, make sure output directory exists
 dirpath = os.getcwd()
 outpath = dirpath + "/output"
 if not os.path.exists(outpath):
     os.mkdir("output")
 
+#Check if GPU is available
 if torch.cuda.is_available():
     print("GPU available.")
 else:
     print("GPU unavailable")
 
-#Load example Visium dataset (24,923 genes, 3798 spots)
-visium_example_dataset = hn.pp.load_brca_visium_10x()
-name = 'brca_visium'
+#Build CL argument parser
+parser = argparse.ArgumentParser(prog="GNN-Framework",
+                                description="Framework for testing GNN-based CCC inference methods")
+parser.add_argument("-d", '--dataset', default="brca_visium", help='Which dataset to analyze')
+parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet')
 
+args = parser.parse_args()
+
+print("args given: ", args)
+if args.dataset == 'brca_visium':
+    #Load example Visium dataset (24,923 genes, 3798 spots)
+    visium_example_dataset = hn.pp.load_brca_visium_10x()
+    name = 'brca_visium'
+
+if args.dataset == 'resolve':
+    if not os.path.exists(dirpath+"/data"):
+        os.mkdir("data")
+    if not os.path.exists(dirpath+"/data/resolve.h5ad"):
+        print("Downloading RESOLVE dataset:")
+        link = requests.get("https://dl01.irc.ugent.be/spatial/adata_objects/adataA1-1.h5ad")
+        with open('data/resolve.h5ad', 'wb') as f:
+            f.write(link.content)
+    resolve_dataset = sc.read("data/resolve.h5ad")
 
 class holonet_pipeline:
     """
@@ -116,7 +140,7 @@ class holonet_pipeline:
         else:
             self.filtered_ce_tensor = hn.tl.filter_ce_tensor(self.ce_tensor, self.dataset, self.expressed_lr_df,
                                                              self.elements_expr_df_dict, self.w_best)
-            with open("outputs/filtered_ce_tensor_"+self.name+".pkl") as f:
+            with open("output/filtered_ce_tensor_"+self.name+".pkl") as f:
                 pickle.dump(self.filtered_ce_tensor, f)
 
     def visualize_ce_tensors(self, target_lr="TGFB1:(TGFBR1+TGFBR2)"):
