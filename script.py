@@ -41,7 +41,7 @@ class holonet_pipeline:
     def __init__(self, dataset, list_of_target_genes=[], list_of_target_lr=[], name=""):
         self.dataset = dataset
         self.list_of_target_genes = list_of_target_genes
-        self.list_of_target_lr
+        self.list_of_target_lr = list_of_target_lr
         self.name = name
         #visualize_dataset()
         #Load the Ligand-Receptor matrix
