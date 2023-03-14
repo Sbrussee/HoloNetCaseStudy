@@ -41,8 +41,9 @@ args = parser.parse_args()
 print("args given: ", args)
 if args.dataset == 'brca_visium':
     #Load example Visium dataset (24,923 genes, 3798 spots)
-    visium_example_dataset = hn.pp.load_brca_visium_10x()
+    dataset = hn.pp.load_brca_visium_10x()
     name = 'brca_visium'
+    organism = 'human'
 
 if args.dataset == 'resolve':
     if not os.path.exists(dirpath+"/data"):
@@ -52,18 +53,21 @@ if args.dataset == 'resolve':
         link = requests.get("https://dl01.irc.ugent.be/spatial/adata_objects/adataA1-1.h5ad")
         with open('data/resolve.h5ad', 'wb') as f:
             f.write(link.content)
-    resolve_dataset = sc.read("data/resolve.h5ad")
+    dataset = sc.read("data/resolve.h5ad")
+    organism = 'mouse'
 
 class holonet_pipeline:
     """
 
         - dataset: AnnData dataset to analyze
+        - organism: Organism of dataset: mouse/human
         - list_of_target_genes: List of target genes to train models for
         - list_of_target_lr : List of LR-pairs to visualize
         - name: Name of the dataset (for use in plotting)
     """
-    def __init__(self, dataset, list_of_target_genes=[], list_of_target_lr=[], name=""):
+    def __init__(self, dataset, organism, list_of_target_genes=[], list_of_target_lr=[], name=""):
         self.dataset = dataset
+        self.organism = organism
         self.list_of_target_genes = list_of_target_genes
         self.list_of_target_lr = list_of_target_lr
         self.name = name
@@ -100,7 +104,7 @@ class holonet_pipeline:
 
     def load_lr_df(self):
         #Load human L-R database from CellChatDB, Connectome also possible
-        self.interaction_db, self.cofactor_db, self.complex_db = hn.pp.load_lr_df(human_or_mouse='human')
+        self.interaction_db, self.cofactor_db, self.complex_db = hn.pp.load_lr_df(human_or_mouse=self.organism)
         #Filter LR-pairs by occuring at a percentage of cells (0.3)
         if path.exists("output/expressed_lr_df_"+self.name+".csv"):
             self.expressed_lr_df = pd.read_csv("output/expressed_lr_df_" + self.name + ".csv")
@@ -274,4 +278,4 @@ class holonet_pipeline:
 
 
 
-holonet_pipeline(visium_example_dataset)
+holonet_pipeline(dataset, organism)
