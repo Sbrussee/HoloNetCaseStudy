@@ -98,7 +98,7 @@ class holonet_pipeline:
         print("LR dataframe shape: "+str(self.expressed_lr_df.shape))
 
     def load_ce_tensor(self):
-        print("creating CE tensor"...)
+        print("creating CE tensor...")
         """
         As ligand molecules from a single source can only cover a limited region,
         We select a range around the ligand denoted as w_best
