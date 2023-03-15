@@ -1,5 +1,6 @@
 import HoloNet as hn
 
+import sys
 import os
 from os import path
 import requests
@@ -38,9 +39,9 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 
 args = parser.parse_args()
 
+class GVAE()
 class holonet_pipeline:
     """
-
         - dataset: AnnData dataset to analyze
         - organism: Organism of dataset: mouse/human
         - list_of_target_genes: List of target genes to train models for
@@ -144,7 +145,7 @@ class holonet_pipeline:
 
         #We can also plot the cel-type CE network.
         #for this, we need to load the cell-type percentages per spot
-        self.cell_type_mat, self.cell_type_names = hn.pr.get_continous_cell_type_tensor(self.dataset,
+        self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
                                                                               continous_cell_type_slot='predicted_cell_type')
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
@@ -270,7 +271,7 @@ if args.dataset == 'brca_visium':
     name = 'brca_visium'
     organism = 'human'
 
-if args.dataset == 'resolve':
+elif args.dataset == 'resolve':
     if not os.path.exists(dirpath+"/data"):
         os.mkdir("data")
     if not os.path.exists(dirpath+"/data/resolve.h5ad"):
@@ -281,5 +282,8 @@ if args.dataset == 'resolve':
     dataset = sc.read("data/resolve.h5ad")
     organism = 'mouse'
 
+else:
+    print("No dataset selected...")
+    sys.exit()
 print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
