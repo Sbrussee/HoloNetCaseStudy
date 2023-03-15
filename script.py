@@ -39,7 +39,6 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 
 args = parser.parse_args()
 
-class GVAE()
 class holonet_pipeline:
     """
         - dataset: AnnData dataset to analyze
@@ -121,7 +120,7 @@ class holonet_pipeline:
                                                  self.elements_expr_df_dict, self.dataset)
         #We can then filter the edges with low specifities
         if path.exists("output/filtered_ce_tensor_"+self.name+".pkl"):
-            with open("ouput/filtered_ce_tensor_"+self.name+".pkl", 'rb') as f:
+            with open("output/filtered_ce_tensor_"+self.name+".pkl", 'rb') as f:
                 self.filtered_ce_tensor = pickle.load(f)
         else:
             self.filtered_ce_tensor = hn.tl.filter_ce_tensor(self.ce_tensor, self.dataset, self.expressed_lr_df,
