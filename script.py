@@ -173,7 +173,7 @@ class holonet_pipeline:
         #Select all target genes
         self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
         #Now we need to build our feature matrix of cell types
-        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continous_cell_type_slot="predicted_cell_type")
+        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot="predicted_cell_type")
         #And the adjancancy matrix of our cell network
         self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
                                                      only_between_cell_type=True)
