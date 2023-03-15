@@ -238,7 +238,7 @@ class holonet_pipeline:
         self.predicted_expr_type_GCN_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_type_GCN_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
-        self.predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(self.MGC_model_only_type_list,
+        self.predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_only_type_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
         #We can compare the pearson correlation between the two predictions to identify CCC-dominated genes
@@ -250,7 +250,7 @@ class holonet_pipeline:
         self.only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
 
         #Save all results
-        all_target_result = hn.pl.save_mgc_interpretation_for_all_target(trained_MGC_model_type_GCN_list,
+        all_target_result = hn.pl.save_mgc_interpretation_for_all_target(MGC_model_type_GCN_list,
                                                                          self.cell_type_tensor, self.adjancancy_matrix,
                                                                  self.used_gene_list, self.expressed_lr_df.reset_index(), self.cell_type_names,
                                                                  LR_pair_num_per_target=15,
@@ -261,10 +261,10 @@ class holonet_pipeline:
                                                                  figures_save_folder='./output/all_target/',
                                                                  project_name=name+"_All_Targets")
         #Save the only-type models
-        hn.pr.save_model_list(self.MGC_model_only_type_list, project_name=name+"_only_type",
+        hn.pr.save_model_list(MGC_model_only_type_list, project_name=name+"_only_type",
                               target_gene_name_list=self.used_gene_list)
         #Save the GCN models
-        hn.pr.save_model_list(self.MGC_model_type_GCN_list, project_name=name+"_GCN",
+        hn.pr.save_model_list(MGC_model_type_GCN_list, project_name=name+"_GCN",
                               target_gene_name_list=self.used_gene_list)
 
 
