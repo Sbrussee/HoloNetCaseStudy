@@ -75,6 +75,7 @@ class holonet_pipeline:
 
 
     def visualize_dataset(self):
+        print("Visualizing dataset...")
         #Plot cell type percentages
         hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="output/cell_type_proportions")
 
@@ -84,6 +85,7 @@ class holonet_pipeline:
 
 
     def load_lr_df(self):
+        print("Load expression matrix...")
         #Load human L-R database from CellChatDB, Connectome also possible
         self.interaction_db, self.cofactor_db, self.complex_db = hn.pp.load_lr_df(human_or_mouse=self.organism)
         #Filter LR-pairs by occuring at a percentage of cells (0.3)
@@ -96,6 +98,7 @@ class holonet_pipeline:
         print("LR dataframe shape: "+str(self.expressed_lr_df.shape))
 
     def load_ce_tensor(self):
+        print("creating CE tensor")
         """
         As ligand molecules from a single source can only cover a limited region,
         We select a range around the ligand denoted as w_best
@@ -129,7 +132,7 @@ class holonet_pipeline:
                 pickle.dump(self.filtered_ce_tensor, f)
 
     def visualize_ce_tensors(self, target_lr="TGFB1:(TGFBR1+TGFBR2)"):
-
+        print("Visualizing CE tensors...")
         #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
         #We can use either degree or eigenvector centrality as CE strength per cell/spot
         #For example, let's see it for TGFB1:(TGFBR1+TGFBR2)
@@ -166,15 +169,17 @@ class holonet_pipeline:
         adata=self.dataset, fname='output/general_ce_hotspot_'+self.name+"_"+target_lr)
 
     def preprocessing_for_gcn_model(self):
+        print("Preprocessing for GCN model...")
         #Select all target genes
         self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
         #Now we need to build our feature matrix of cell types
-        self.cell_type_tensor, self.cell_type_names = hn.pr.continous_cell_type_tensor(self.dataset, continous_cell_type_slot="predicted_cell_type")
+        self.cell_type_tensor, self.cell_type_names = hn.pr.continuous_cell_type_tensor(self.dataset, continous_cell_type_slot="predicted_cell_type")
         #And the adjancancy matrix of our cell network
         self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
                                                      only_between_cell_type=True)
 
     def train_gcn_model(self, gene):
+        print("Train GCN model...")
         #Now we can train a GCN-model for predicting the gene expression of a specific gene
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
@@ -197,6 +202,7 @@ class holonet_pipeline:
 
 
     def visualize_gcn_output(self, gene, model, lr_pair="all"):
+        print("Visualizing GCN output...")
         #Now that our model is trained, we can visualize the model results
         #Let's plot the top 15 LR pairs
         ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
@@ -218,6 +224,7 @@ class holonet_pipeline:
 
 
     def multitarget_training(self, genes_to_plot=['MMP11']):
+        print("Train model for all genes..")
         #We can model all target genes to get an idea of the genes which are more affected by CCC
         if torch.cuda.is_available():
             MGC_model_only_type_list, \
