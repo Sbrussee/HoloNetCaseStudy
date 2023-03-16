@@ -296,8 +296,15 @@ elif args.dataset == 'resolve':
     dataset = sc.read("data/resolve.h5ad")
     organism = 'mouse'
 
-else:
+elif: args.dataset == 'nanostring':
+    dataset = sq.read.nanostring(path="data/Lung5_Rep1",
+                       counts_file="Lung5_Rep1_exprMat_file.csv",
+                       meta_file="Lung5_Rep1_metadata_file.csv",
+                       fov_file="Lung5_Rep1_fov_positions_file.csv")
+    organism = 'human'
 
+
+else:
     print("No dataset selected...")
     sys.exit()
 
@@ -305,4 +312,7 @@ else:
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
-holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=["TGFB1:(TGFBR1+TGFBR2)"])
+if args.dataset == 'brca_visium':
+    holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=["TGFB1:(TGFBR1+TGFBR2)"])
+else:
+    holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=[])
