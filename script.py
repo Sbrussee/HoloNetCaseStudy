@@ -77,11 +77,11 @@ class holonet_pipeline:
     def visualize_dataset(self):
         print("Visualizing dataset...")
         #Plot cell type percentages
-        hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="output/cell_type_proportions")
+        hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="output/cell_type_proportions.png")
 
         #Cell type labels per spot
         sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
-        palette=hn.brca_default_color_celltype, save="spatial.png")
+        palette=hn.brca_default_color_celltype, save="output/spatial.png")
 
 
     def load_lr_df(self):
@@ -138,11 +138,11 @@ class holonet_pipeline:
         #For example, let's see it for TGFB1:(TGFBR1+TGFBR2)
 
         hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_'+self.name+"_"+target_lr)
+        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_'+self.name+"_"+target_lr+".png")
 
         #Now based on eigenvector centrality
         hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_eigenvector_'+self.name+"_"+target_lr,
+        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
         centrality_measure='eigenvector')
 
         #We can also plot the cel-type CE network.
@@ -152,7 +152,7 @@ class holonet_pipeline:
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
-        palette=hn.brca_default_color_celltype, fname='output/cell_type_network_'+self.name+"_"+target_lr)
+        palette=hn.brca_default_color_celltype, fname='output/cell_type_network_'+self.name+"_"+target_lr+".png")
 
         #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
         cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.filtered_ce_tensor)
@@ -161,12 +161,12 @@ class holonet_pipeline:
 
         #Now plot a dendogram using this clustering
         hn.pl.lr_clustering_dendogram(_, self.expressed_lr_df, [target_lr],
-        dflt_col="#333333",fname="output/clust_dendogram_"+self.name+"_"+target_lr)
+        dflt_col="#333333",fname="output/clust_dendogram_"+self.name+"_"+target_lr+".png")
 
         #We can also plot the general CE hotspots for each ligand-receptor cluster
         hn.pl.lr_cluster_ce_hotspot_plot(lr_df=self.clustered_expressed_LR_df,
         cell_cci_centrality=cell_cci_centrality,
-        adata=self.dataset, fname='output/general_ce_hotspot_'+self.name+"_"+target_lr)
+        adata=self.dataset, fname='output/general_ce_hotspot_'+self.name+"_"+target_lr+".png")
 
     def preprocessing_for_gcn_model(self):
         print("Preprocessing for GCN model...")
@@ -184,7 +184,7 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}.png")
+        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"output/{gene}.png")
 
 
 
@@ -207,33 +207,41 @@ class holonet_pipeline:
         #Let's plot the top 15 LR pairs
         ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
                                             plot_cluster=False, repeat_attention_scale=True,
-                                            fname="output/LR_ranking_"+self.name+"_"+gene)
+                                            fname="output/LR_ranking_"+self.name+"_"+gene+".png")
         cluster_ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.clustered_expressed_LR_df,
                                             plot_cluster=True, cluster_col=True, repeat_attention_scale=True,
-                                            fname="output/LR_ranking_clustered_"+self.name+"_"+gene)
+                                            fname="output/LR_ranking_clustered_"+self.name+"_"+gene+".png")
         #Now we can plot the cell-type level FCE network
         _ = hn.pl.fce_cell_type_network_plot(model, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                              self.cell_type_names, plot_lr=lr_pair, edge_thres=0.2,
                                              palette=hn.brca_default_color_celltype,
-                                             fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair)
+                                             fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair+".png")
         #Plot Delta E proportion per cell type
         delta_e = hn.pl.delta_e_proportion(model, self.cell_type_tensor, self.adjancancy_matrix,
                                            self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                           fname="output/delta_plot_"+self.name+"_"+gene)
+                                           fname="output/delta_plot_"+self.name+"_"+gene+".png")
 
 
 
     def multitarget_training(self, genes_to_plot=['MMP11']):
-        print("Train model for all genes..")
-        #We can model all target genes to get an idea of the genes which are more affected by CCC
-        if torch.cuda.is_available():
-            MGC_model_only_type_list, \
-            MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
-                                            self.adjancancy_matrix, self.target_all_gene_expr, device='gpu')
+        if not path.exists(f"_tmp_save_model/{name}_GCN"):
+            print("Train model for all genes..")
+            #We can model all target genes to get an idea of the genes which are more affected by CCC
+            if torch.cuda.is_available():
+                MGC_model_only_type_list, \
+                MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
+                                                self.adjancancy_matrix, self.target_all_gene_expr, device='gpu')
+            else:
+                MGC_model_only_type_list, \
+                MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
+                                                self.adjancancy_matrix, self.target_all_gene_expr)
         else:
+            print("Models were already trained, loading trained models...")
             MGC_model_only_type_list, \
-            MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
-                                            self.adjancancy_matrix, self.target_all_gene_expr)
+            used_gene_list = hn.pr.load_model_list(self.cell_type_tensor, self.adjancancy_matrix, project_name=name+"_only_type",
+                                                   only_cell_type=True)
+            MGC_model_type_GCN_list, \
+            used_gene_list = hn.pr.load_model_list(self.cell_type_tensor, self.adjancancy_matrix, project_name=name+"_GCN")
         #Predict the expression using GCN+cell type vs only using cell type
         self.predicted_expr_type_GCN_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_type_GCN_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
@@ -245,7 +253,7 @@ class holonet_pipeline:
         self.only_type_vs_GCN_all = hn.pl.find_genes_linked_to_ce(self.predicted_expr_type_GCN_df,
                                                              self.predicted_expr_only_type_df,
                                                              self.used_gene_list, self.target_all_gene_expr,
-                                                             plot_gene_list=['MMP11'], linewidths=5,
+                                                             plot_gene_list=genes_to_plot, linewidths=5,
                                                              fname="output/pred_correlation_"+self.name)
         self.only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
 
@@ -259,7 +267,7 @@ class holonet_pipeline:
                                                                  save_fce_plot=True,
                                                                  palette=hn.brca_default_color_celltype,
                                                                  figures_save_folder='./output/all_target/',
-                                                                 project_name=name+"_All_Targets")
+                                                                 project_name=name+"_all_targets")
         #Save the only-type models
         hn.pr.save_model_list(MGC_model_only_type_list, project_name=name+"_only_type",
                               target_gene_name_list=self.used_gene_list)
@@ -291,5 +299,9 @@ elif args.dataset == 'resolve':
 else:
     print("No dataset selected...")
     sys.exit()
+
+#Make sure the plot layout works correctly
+plt.rcParams.update({'figure:autolayout':True})
+
 print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
