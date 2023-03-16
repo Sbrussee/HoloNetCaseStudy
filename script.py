@@ -302,7 +302,7 @@ else:
     sys.exit()
 
 #Make sure the plot layout works correctly
-plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox'='tight'})
+plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
