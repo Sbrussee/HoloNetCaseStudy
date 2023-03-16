@@ -297,11 +297,12 @@ elif args.dataset == 'resolve':
     organism = 'mouse'
 
 else:
+
     print("No dataset selected...")
     sys.exit()
 
 #Make sure the plot layout works correctly
-plt.rcParams.update({'figure:autolayout':True})
+plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox'='tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
 holonet_pipeline(dataset, organism)
