@@ -59,7 +59,7 @@ class holonet_pipeline:
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
-        for pair in self.list_of_target_lr:
+        for pair in self.expressed_lr_df['LR_pair']:
             self.visualize_ce_tensors(pair)
 
         self.preprocessing_for_gcn_model()
@@ -296,7 +296,7 @@ elif args.dataset == 'resolve':
     dataset = sc.read("data/resolve.h5ad")
     organism = 'mouse'
 
-elif: args.dataset == 'nanostring':
+elif args.dataset == 'nanostring':
     dataset = sq.read.nanostring(path="data/Lung5_Rep1",
                        counts_file="Lung5_Rep1_exprMat_file.csv",
                        meta_file="Lung5_Rep1_metadata_file.csv",
