@@ -125,7 +125,7 @@ class holonet_pipeline:
         else:
             ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
                                                  self.elements_expr_df_dict, self.dataset)
-            with open('output/ce_tensor_'+self.name+".pkl", 'wb'):
+            with open('output/ce_tensor_'+self.name+".pkl", 'wb') as f:
                 pickle.dump(ce_tensor, f)
         #We can then filter the edges with low specifities
         if path.exists("output/filtered_ce_tensor_"+self.name+".pkl"):
