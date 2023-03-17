@@ -119,14 +119,15 @@ class holonet_pipeline:
                 pickle.dump(self.elements_expr_df_dict, f)
 
         #Now we compute the tensor of communication events
-        self.ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
+        if path.exists
+        ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
                                                  self.elements_expr_df_dict, self.dataset)
         #We can then filter the edges with low specifities
         if path.exists("output/filtered_ce_tensor_"+self.name+".pkl"):
             with open("output/filtered_ce_tensor_"+self.name+".pkl", 'rb') as f:
                 self.filtered_ce_tensor = pickle.load(f)
         else:
-            self.filtered_ce_tensor = hn.tl.filter_ce_tensor(self.ce_tensor, self.dataset, self.expressed_lr_df,
+            self.filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, self.dataset, self.expressed_lr_df,
                                                              self.elements_expr_df_dict, self.w_best)
             with open("output/filtered_ce_tensor_"+self.name+".pkl", 'wb') as f:
                 pickle.dump(self.filtered_ce_tensor, f)
@@ -160,7 +161,7 @@ class holonet_pipeline:
         w_best=self.w_best, cell_cci_centrality=cell_cci_centrality)
 
         #Now plot a dendogram using this clustering
-        hn.pl.lr_clustering_dendogram(_, self.expressed_lr_df, [target_lr],
+        hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
         dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
 
         #We can also plot the general CE hotspots for each ligand-receptor cluster
