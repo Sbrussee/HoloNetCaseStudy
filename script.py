@@ -59,7 +59,7 @@ class holonet_pipeline:
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
-        for pair in self.expressed_lr_df[['LR_Pair']].to_list():
+        for pair in self.expressed_lr_df['LR_Pair'].to_list():
             self.visualize_ce_tensors(pair)
 
         self.preprocessing_for_gcn_model()
