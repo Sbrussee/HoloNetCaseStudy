@@ -148,7 +148,7 @@ class holonet_pipeline:
         #We can also plot the cel-type CE network.
         #for this, we need to load the cell-type percentages per spot
         self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
-                                                                              continous_cell_type_slot='predicted_cell_type')
+                                                                              continuous_cell_type_slot='predicted_cell_type')
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
