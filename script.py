@@ -296,7 +296,7 @@ elif args.dataset == 'resolve':
     dataset = sc.read("data/resolve.h5ad")
     organism = 'mouse'
 
-elif: args.dataset == 'nanostring':
+elif args.dataset == 'nanostring':
     dataset = sq.read.nanostring(path="data/Lung5_Rep1",
                        counts_file="Lung5_Rep1_exprMat_file.csv",
                        meta_file="Lung5_Rep1_metadata_file.csv",
