@@ -59,7 +59,7 @@ class holonet_pipeline:
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
-        print(self.expressed_lr_df[['LR_pair']])
+        print(self.expressed_lr_df[['LR_Pair']])
         for pair in self.expressed_lr_df[['LR_Pair']]:
             self.visualize_ce_tensors(pair)
 
