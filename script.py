@@ -119,7 +119,8 @@ class holonet_pipeline:
                 pickle.dump(self.elements_expr_df_dict, f)
 
         #Now we compute the tensor of communication events
-        if path.exists
+        if path.exists("output/ce_tensor_"+self.name+".pkl"):
+            with open("output/ce_tensor_"+self.name+".pkl", '')
         ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
                                                  self.elements_expr_df_dict, self.dataset)
         #We can then filter the edges with low specifities
