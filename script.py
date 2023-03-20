@@ -89,11 +89,11 @@ class holonet_pipeline:
     def visualize_dataset(self):
         print("Visualizing dataset...")
         #Plot cell type percentages
-        hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="output/cell_type_proportions.png")
+        hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="cell_type_proportions.png")
 
         #Cell type labels per spot
         sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
-        palette=hn.brca_default_color_celltype, save="output/spatial.png")
+        palette=hn.brca_default_color_celltype, save="spatial.png")
 
 
     def load_lr_df(self):
