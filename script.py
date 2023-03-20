@@ -61,13 +61,14 @@ class holonet_pipeline:
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
+        """
         if len(list_of_target_genes) < 1:
             for pair in self.expressed_lr_df['LR_Pair'].to_list():
                 self.visualize_ce_tensors(pair)
         else:
             for pair in list_of_target_lr:
                 self.visualize_ce_tensors(pair)
-
+        """
         self.preprocessing_for_gcn_model()
         model_per_gene = {}
         if len(list_of_target_genes) < 1:
