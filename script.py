@@ -36,7 +36,8 @@ parser = argparse.ArgumentParser(prog="GNN-Framework",
                                 description="Framework for testing GNN-based CCC inference methods")
 parser.add_argument("-d", '--dataset', default="brca_visium", help='Which dataset to analyze')
 parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet')
-
+parser.add_argument('-g', '--genes', help='List of target genes to query')
+parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
 args = parser.parse_args()
 
 class holonet_pipeline:
@@ -53,21 +54,32 @@ class holonet_pipeline:
         self.list_of_target_genes = list_of_target_genes
         self.list_of_target_lr = list_of_target_lr
         self.name = name
-        #visualize_dataset()
+
+        self.visualize_dataset()
         #Load the Ligand-Receptor matrix
         self.load_lr_df()
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
-        for pair in self.expressed_lr_df['LR_Pair'].to_list():
-            self.visualize_ce_tensors(pair)
+        if len(list_of_target_genes) < 1:
+            for pair in self.expressed_lr_df['LR_Pair'].to_list():
+                self.visualize_ce_tensors(pair)
+        else:
+            for pair in list_of_target_lr:
+                self.visualize_ce_tensors(pair)
 
         self.preprocessing_for_gcn_model()
         model_per_gene = {}
-        self.multitarget_training()
-        #Train a model per gene
-        for gene in self.list_of_target_genes:
-            model_per_gene[gene] = self.train_gcn_model(gene)
+        if len(list_of_target_genes) < 1:
+            self.multitarget_training(self.used_gene_list)
+            #Train a model per gene
+            for gene in self.used_gene_list:
+                model_per_gene[gene] = self.train_gcn_model(gene)
+        else:
+            self.multitarget_training(list_of_target_genes)
+            #Train a model per gene
+            for gene in list_of_target_genes:
+                model_per_gene[gene] = self.train_gcn_model(gene)
 
         for gene, model in model_per_gene.items():
             self.visualize_gcn_output(gene, model)
@@ -185,15 +197,12 @@ class holonet_pipeline:
                                                      only_between_cell_type=True)
 
     def train_gcn_model(self, gene):
-        print("Train GCN model...")
+        print(f"Training GCN model for gene {gene}")
         #Now we can train a GCN-model for predicting the gene expression of a specific gene
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
         sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"output/{gene}.png")
-
-
-
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
@@ -209,28 +218,35 @@ class holonet_pipeline:
 
     def visualize_gcn_output(self, gene, model, lr_pair="all"):
         print("Visualizing GCN output...")
+        MGC_model_only_type_list, \
+        used_gene_list = hn.pr.load_model_list(self.cell_type_tensor, self.adjancancy_matrix, project_name=name+"_only_type",
+                                               only_cell_type=True)
+        MGC_model_type_GCN_list, \
+        used_gene_list = hn.pr.load_model_list(self.cell_type_tensor, self.adjancancy_matrix, project_name=name+"_GCN")
         #Now that our model is trained, we can visualize the model results
-        #Let's plot the top 15 LR pairs
-        ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
-                                            plot_cluster=False, repeat_attention_scale=True,
-                                            fname="output/LR_ranking_"+self.name+"_"+gene+".png")
-        cluster_ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.clustered_expressed_LR_df,
-                                            plot_cluster=True, cluster_col=True, repeat_attention_scale=True,
-                                            fname="output/LR_ranking_clustered_"+self.name+"_"+gene+".png")
-        #Now we can plot the cell-type level FCE network
-        _ = hn.pl.fce_cell_type_network_plot(model, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
-                                             self.cell_type_names, plot_lr=lr_pair, edge_thres=0.2,
-                                             palette=hn.brca_default_color_celltype,
-                                             fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair+".png")
-        #Plot Delta E proportion per cell type
-        delta_e = hn.pl.delta_e_proportion(model, self.cell_type_tensor, self.adjancancy_matrix,
-                                           self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                           fname="output/delta_plot_"+self.name+"_"+gene+".png")
+        for model in MGC_model_type_GCN_list:
+            #Let's plot the top 15 LR pairs
+            ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
+                                                plot_cluster=False, repeat_attention_scale=True,
+                                                fname="output/LR_ranking_"+self.name+"_"+gene+".png")
+            cluster_ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.clustered_expressed_LR_df,
+                                                plot_cluster=True, cluster_col=True, repeat_attention_scale=True,
+                                                fname="output/LR_ranking_clustered_"+self.name+"_"+gene+".png")
+            #Now we can plot the cell-type level FCE network
+            _ = hn.pl.fce_cell_type_network_plot(model, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
+                                                 self.cell_type_names, plot_lr=lr_pair, edge_thres=0.2,
+                                                 palette=hn.brca_default_color_celltype,
+                                                 fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair+".png")
+            #Plot Delta E proportion per cell type
+            delta_e = hn.pl.delta_e_proportion(model, self.cell_type_tensor, self.adjancancy_matrix,
+                                               self.cell_type_names, palette = hn.brca_default_color_celltype,
+                                               fname="output/delta_plot_"+self.name+"_"+gene+".png")
 
 
 
-    def multitarget_training(self, genes_to_plot=['MMP11']):
-        if not path.exists(f"_tmp_save_model/{name}_GCN"):
+    def multitarget_training(self, genes_to_plot=[]):
+        print("Training GCN for all genes...")
+        if not path.exists(f"_tmp_save_model/{self.name}_GCN"):
             print("Train model for all genes..")
             #We can model all target genes to get an idea of the genes which are more affected by CCC
             if torch.cuda.is_available():
@@ -249,19 +265,19 @@ class holonet_pipeline:
             MGC_model_type_GCN_list, \
             used_gene_list = hn.pr.load_model_list(self.cell_type_tensor, self.adjancancy_matrix, project_name=name+"_GCN")
         #Predict the expression using GCN+cell type vs only using cell type
-        self.predicted_expr_type_GCN_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_type_GCN_list,
+        predicted_expr_type_GCN_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_type_GCN_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
-        self.predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_only_type_list,
+        predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_only_type_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
         #We can compare the pearson correlation between the two predictions to identify CCC-dominated genes
-        self.only_type_vs_GCN_all = hn.pl.find_genes_linked_to_ce(self.predicted_expr_type_GCN_df,
-                                                             self.predicted_expr_only_type_df,
+        only_type_vs_GCN_all = hn.pl.find_genes_linked_to_ce(predicted_expr_type_GCN_df,
+                                                             predicted_expr_only_type_df,
                                                              self.used_gene_list, self.target_all_gene_expr,
                                                              plot_gene_list=genes_to_plot, linewidths=5,
                                                              fname="output/pred_correlation_"+self.name)
-        self.only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
+        only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
 
         #Save all results
         all_target_result = hn.pl.save_mgc_interpretation_for_all_target(MGC_model_type_GCN_list,
@@ -285,6 +301,7 @@ class holonet_pipeline:
 
 
 print("args given: ", args)
+print("Loading dataset...")
 if args.dataset == 'brca_visium':
     #Load example Visium dataset (24,923 genes, 3798 spots)
     dataset = hn.pp.load_brca_visium_10x()
@@ -308,6 +325,8 @@ elif args.dataset == 'nanostring':
                        meta_file="Lung5_Rep1_metadata_file.csv",
                        fov_file="Lung5_Rep1_fov_positions_file.csv")
     organism = 'human'
+    #Subset nanostring data in 4 parts
+    print(dataset.obs.shape)
 
 
 else:
@@ -318,7 +337,4 @@ else:
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
-if args.dataset == 'brca_visium':
-    holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=["TGFB1:(TGFBR1+TGFBR2)"])
-else:
-    holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=[])
+holonet_pipeline(dataset, organism, list_of_target_lr=[], list_of_target_genes=[])
