@@ -246,13 +246,13 @@ class holonet_pipeline:
 
     def multitarget_training(self, genes_to_plot=[]):
         print("Training GCN for all genes...")
-        if not path.exists("_tmp_save_model/"+self.name+"_GCN"):
+        if not path.exists("/srv/scratch/siemenb/GNN_CCC_ST_Benchmark/_tmp_save_model/"+self.name+"_GCN"):
             print("Train model for all genes..")
             #We can model all target genes to get an idea of the genes which are more affected by CCC
             if torch.cuda.is_available():
                 MGC_model_only_type_list, \
                 MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
-                                                self.adjancancy_matrix, self.target_all_gene_expr, use_gpu=True, device='gpu')
+                                                self.adjancancy_matrix, self.target_all_gene_expr, device='gpu')
             else:
                 MGC_model_only_type_list, \
                 MGC_model_type_GCN_list = hn.pr.mgc_training_for_multiple_targets(self.cell_type_tensor,
