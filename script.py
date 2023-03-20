@@ -246,7 +246,7 @@ class holonet_pipeline:
 
     def multitarget_training(self, genes_to_plot=[]):
         print("Training GCN for all genes...")
-        if not path.path.isdir("_tmp_save_model/"+self.name+"_GCN"):
+        if not path.isdir("_tmp_save_model/"+self.name+"_GCN"):
             print("Train model for all genes..")
             #We can model all target genes to get an idea of the genes which are more affected by CCC
             if torch.cuda.is_available():
