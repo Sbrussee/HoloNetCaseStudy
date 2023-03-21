@@ -202,7 +202,7 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"output/{gene}.png")
+        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}.png")
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
