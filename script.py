@@ -203,7 +203,7 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"output/{gene}.png")
+        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}.png")
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
@@ -229,19 +229,19 @@ class holonet_pipeline:
             #Let's plot the top 15 LR pairs
             ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
                                                 plot_cluster=False, repeat_attention_scale=True,
-                                                fname="output/LR_ranking_"+self.name+"_"+gene+".png")
+                                                fname="output/LR_ranking_"+self.name+"_trained_for_"+gene+".png")
             cluster_ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.clustered_expressed_LR_df,
                                                 plot_cluster=True, cluster_col=True, repeat_attention_scale=True,
-                                                fname="output/LR_ranking_clustered_"+self.name+"_"+gene+".png")
+                                                fname="output/LR_ranking_clustered_"+self.name+"_trained_for_"+gene+".png")
             #Now we can plot the cell-type level FCE network
             _ = hn.pl.fce_cell_type_network_plot(model, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr=lr_pair, edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair+".png")
+                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+self.gene+"_"+lr_pair+".png")
             #Plot Delta E proportion per cell type
             delta_e = hn.pl.delta_e_proportion(model, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                               fname="output/delta_plot_"+self.name+"_"+gene+".png")
+                                               fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
 
 
 
