@@ -228,19 +228,19 @@ class holonet_pipeline:
             #Let's plot the top 15 LR pairs
             ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.expressed_lr_df,
                                                 plot_cluster=False, repeat_attention_scale=True,
-                                                fname="output/LR_ranking_"+self.name+"_"+gene+".png")
+                                                fname="output/LR_ranking_"+self.name+"_trained_for_"+gene+".png")
             cluster_ranked_LR_df = hn.pl.lr_rank_in_mgc(model, self.clustered_expressed_LR_df,
                                                 plot_cluster=True, cluster_col=True, repeat_attention_scale=True,
-                                                fname="output/LR_ranking_clustered_"+self.name+"_"+gene+".png")
+                                                fname="output/LR_ranking_clustered_"+self.name+"_trained_for_"+gene+".png")
             #Now we can plot the cell-type level FCE network
             _ = hn.pl.fce_cell_type_network_plot(model, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr=lr_pair, edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_"+self.name+"_"+self.gene+"_"+lr_pair+".png")
+                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+self.gene+"_"+lr_pair+".png")
             #Plot Delta E proportion per cell type
             delta_e = hn.pl.delta_e_proportion(model, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                               fname="output/delta_plot_"+self.name+"_"+gene+".png")
+                                               fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
 
 
 
