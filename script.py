@@ -275,15 +275,14 @@ class holonet_pipeline:
             only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
 
         #Lets visualize each model
-        for model_list in MGC_model_type_GCN_list:
-            print(model_list)
+        for model_list, gene in zip(MGC_model_type_GCN_list, self.used_gene_list):
             ranked_LR = hn.pl.lr_rank_in_mgc(model_list, self.expressed_lr_df,
                                              plot_cluster=False, repeat_attention_scale=True,
-                                             fname=f"output/ranked_LR_test.png")
+                                             fname=f"output/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+self.gene+"_"+lr_pair+".png")
+                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+gene+"_"+lr_pair+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
                                                fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
