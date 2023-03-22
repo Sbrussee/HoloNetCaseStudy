@@ -282,7 +282,7 @@ class holonet_pipeline:
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+gene+"_"+lr_pair+".png")
+                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+gene+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
                                                fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
