@@ -39,7 +39,7 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 parser.add_argument('-g', '--genes', help='List of target genes to query')
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
 args = parser.parse_args()
-print(args)
+
 
 class holonet_pipeline:
     """
@@ -71,7 +71,8 @@ class holonet_pipeline:
         if len(list_of_target_lr) < 1:
             list_of_target_lr = self.expressed_lr_df['LR_Pair'].to_list()
         for pair in list_of_target_lr:
-            self.visualize_ce_tensors(pair)
+            print(pair)
+            self.visualize_ce_tensors(target_lr=pair)
 
         self.preprocessing_for_gcn_model()
         model_per_gene = {}
@@ -145,7 +146,8 @@ class holonet_pipeline:
             with open("output/filtered_ce_tensor_"+self.name+".pkl", 'wb') as f:
                 pickle.dump(self.filtered_ce_tensor, f)
 
-    def visualize_ce_tensors(self, target_lr="TGFB1:(TGFBR1+TGFBR2)"):
+    def visualize_ce_tensors(self, target_lr=''):
+        print(target_lr)
         print("Visualizing CE tensors...")
         #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
         #We can use either degree or eigenvector centrality as CE strength per cell/spot
@@ -381,4 +383,7 @@ else:
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
-holonet_pipeline(dataset, organism, name=name, list_of_target_lr=[], list_of_target_genes=[])
+list_of_target_lr = args.list_of_target_lr.split(',')
+list_of_target_genes = args.list_of_target_genes.split(',')
+holonet_pipeline(dataset, organism, name=name,
+                 list_of_target_lr=list_of_target_lr, list_of_target_genes=list_of_target_genes)
