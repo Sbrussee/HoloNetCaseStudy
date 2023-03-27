@@ -383,7 +383,7 @@ else:
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 print(f"Analyzing {dataset} from {organism}...")
-list_of_target_lr = args.list_of_target_lr.split(',')
-list_of_target_genes = args.list_of_target_genes.split(',')
+list_of_target_lr = args.pairs.split(',')
+list_of_target_genes = args.genes.split(',')
 holonet_pipeline(dataset, organism, name=name,
                  list_of_target_lr=list_of_target_lr, list_of_target_genes=list_of_target_genes)
