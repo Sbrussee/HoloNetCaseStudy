@@ -147,7 +147,6 @@ class holonet_pipeline:
                 pickle.dump(self.filtered_ce_tensor, f)
 
     def visualize_ce_tensors(self, target_lr=''):
-        print(target_lr)
         print("Visualizing CE tensors...")
         #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
         #We can use either degree or eigenvector centrality as CE strength per cell/spot
@@ -168,7 +167,7 @@ class holonet_pipeline:
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
-        palette=hn.brca_default_color_celltype, fname='output/cell_type_network_'+self.name+"_"+target_lr+".png")
+        palette=hn.brca_default_color_celltype, fname='cell_type_network_'+self.name+"_"+target_lr+".png")
 
         #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
         cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.filtered_ce_tensor)
@@ -177,12 +176,12 @@ class holonet_pipeline:
 
         #Now plot a dendogram using this clustering
         hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
-        dflt_col="#333333",fname="output/clust_dendogram_"+self.name+"_"+target_lr+".png")
+        dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
 
         #We can also plot the general CE hotspots for each ligand-receptor cluster
         hn.pl.lr_cluster_ce_hotspot_plot(lr_df=self.clustered_expressed_LR_df,
         cell_cci_centrality=cell_cci_centrality,
-        adata=self.dataset, fname='output/general_ce_hotspot_'+self.name+"_"+target_lr+".png")
+        adata=self.dataset, fname='general_ce_hotspot_'+self.name+"_"+target_lr+".png")
 
     def preprocessing_for_gcn_model(self):
         print("Preprocessing for GCN model...")
