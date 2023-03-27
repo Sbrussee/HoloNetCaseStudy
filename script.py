@@ -148,11 +148,11 @@ class holonet_pipeline:
         #For example, let's see it for TGFB1:(TGFBR1+TGFBR2)
 
         hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_'+self.name+"_"+target_lr+".png")
+        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_'+self.name+"_"+target_lr+".png")
 
         #Now based on eigenvector centrality
         hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
+        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
         centrality_measure='eigenvector')
 
         #We can also plot the cell-type CE network.
