@@ -38,6 +38,7 @@ parser.add_argument("-d", '--dataset', default="brca_visium", help='Which datase
 parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet')
 parser.add_argument('-g', '--genes', help='List of target genes to query')
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
+parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
 args = parser.parse_args()
 
 
@@ -71,7 +72,6 @@ class holonet_pipeline:
         if len(list_of_target_lr) < 1:
             list_of_target_lr = self.expressed_lr_df['LR_Pair'].to_list()
         for pair in list_of_target_lr:
-            print(pair)
             self.visualize_ce_tensors(target_lr=pair)
 
         self.preprocessing_for_gcn_model()
@@ -287,41 +287,42 @@ class holonet_pipeline:
         for model_list, gene in zip(MGC_model_type_GCN_list, self.used_gene_list):
             #Plot the predicted and true expression per gene
             predicted = hn.pl.plot_mgc_result(model_list, self.dataset, self.cell_type_tensor, self.adjancancy_matrix,
-                                              fname=f"output/pred_expr_GCN_{gene}_{self.name}")
+                                              fname=f"pred_expr_GCN_{gene}_{self.name}")
             truth = sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7)
             correlation_per_gene[gene] = np.corrcoef(predicted.T, truth.T)[0,1]
 
             #Plot the LR-ranking based on attention
             ranked_LR = hn.pl.lr_rank_in_mgc(model_list, self.expressed_lr_df,
                                              plot_cluster=False, repeat_attention_scale=True,
-                                             fname=f"output/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
+                                             fname=f"ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
+                                                 fname="fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                               fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
+                                               fname="delta_plot_"+self.name+"_trained_on_"+gene+".png")
             for pair in lr_to_plot:
                 _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                      self.cell_type_names, plot_lr=pair, edge_thres=0.2,
                                                      palette=hn.brca_default_color_celltype,
-                                                     fname="output/fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
+                                                     fname="fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
         with open("output/truth_correlation_"+self.name, 'wb') as f:
             pickle.dump(correlation_per_gene, f)
 
 
-        #Save all results
-        all_target_result = hn.pl.save_mgc_interpretation_for_all_target(MGC_model_type_GCN_list,
-                                                                         self.cell_type_tensor, self.adjancancy_matrix,
-                                                                 self.used_gene_list, self.expressed_lr_df.reset_index(), self.cell_type_names,
-                                                                 LR_pair_num_per_target=15,
-                                                                 heatmap_plot_lr_num=15,
-                                                                 edge_thres=0.2,
-                                                                 save_fce_plot=True,
-                                                                 palette=hn.brca_default_color_celltype,
-                                                                 figures_save_folder='./output/all_target/',
-                                                                 project_name=name+"_all_targets")
+        if args.all:
+            #Save all results
+            all_target_result = hn.pl.save_mgc_interpretation_for_all_target(MGC_model_type_GCN_list,
+                                                                             self.cell_type_tensor, self.adjancancy_matrix,
+                                                                     self.used_gene_list, self.expressed_lr_df.reset_index(), self.cell_type_names,
+                                                                     LR_pair_num_per_target=15,
+                                                                     heatmap_plot_lr_num=15,
+                                                                     edge_thres=0.2,
+                                                                     save_fce_plot=True,
+                                                                     palette=hn.brca_default_color_celltype,
+                                                                     figures_save_folder='./output/all_target/',
+                                                                     project_name=name+"_all_targets")
 
         #Visualize each model
 
