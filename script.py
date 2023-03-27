@@ -39,6 +39,7 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 parser.add_argument('-g', '--genes', help='List of target genes to query')
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
 args = parser.parse_args()
+print(args)
 
 class holonet_pipeline:
     """
