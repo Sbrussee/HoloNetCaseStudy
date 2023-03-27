@@ -61,19 +61,16 @@ class holonet_pipeline:
         #Create the Cellular Event tensor
         self.load_ce_tensor()
         #Visualize each LR-pair
-        if len(list_of_target_genes) < 1:
-            for pair in self.expressed_lr_df['LR_Pair'].to_list():
-                self.visualize_ce_tensors(pair)
-        else:
-            for pair in list_of_target_lr:
-                self.visualize_ce_tensors(pair)
+        if len(list_of_target_lr) < 1:
+            list_of_target_lr = self.expressed_lr_df['LR_Pair'].to_list()
+        for pair in list_of_target_lr:
+            self.visualize_ce_tensors(pair)
 
         self.preprocessing_for_gcn_model()
         model_per_gene = {}
         if len(list_of_target_genes) < 1:
-            self.multitarget_training(self.used_gene_list)
-        else:
-            self.multitarget_training(list_of_target_genes)
+            list_of_target_genes = self.used_gene_list
+        self.multitarget_training(list_of_target_genes, list_of_target_lr)
 
 
 
@@ -85,6 +82,7 @@ class holonet_pipeline:
         #Cell type labels per spot
         sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
         palette=hn.brca_default_color_celltype, save="spatial.png")
+
 
 
     def load_lr_df(self):
@@ -154,7 +152,7 @@ class holonet_pipeline:
         lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='output/ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
         centrality_measure='eigenvector')
 
-        #We can also plot the cel-type CE network.
+        #We can also plot the cell-type CE network.
         #for this, we need to load the cell-type percentages per spot
         self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
                                                                               continuous_cell_type_slot='predicted_cell_type')
@@ -193,7 +191,7 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}.png")
+        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}_truthexpr.png")
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
@@ -235,7 +233,7 @@ class holonet_pipeline:
 
 
 
-    def multitarget_training(self, genes_to_plot=[]):
+    def multitarget_training(self, genes_to_plot=[], lr_to_plot=[]):
         print("Training GCN for all genes...")
         print(dirpath+"_tmp_save_model/"+self.name+"_GCN")
         if not path.isdir(os.path.join(dirpath, "_tmp_save_model/"+self.name+"_GCN")):
@@ -263,6 +261,9 @@ class holonet_pipeline:
         predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_only_type_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
+        predicted_expr_type_GCN_df.to_csv("output/pred_expr_GCN.csv")
+        predicted_expr_only_type_df.to_csv("output/pred_expr_noGCN.csv")
+
 
         #We can compare the pearson correlation between the two predictions to identify CCC-dominated genes
         for gene in genes_to_plot:
@@ -273,18 +274,33 @@ class holonet_pipeline:
                                                                  fname="output/pred_correlation_"+gene+"_"+self.name+".png")
             only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
 
+        correlation_per_gene = {}
         #Lets visualize each model
         for model_list, gene in zip(MGC_model_type_GCN_list, self.used_gene_list):
+            #Plot the predicted and true expression per gene
+            predicted = hn.pl.plot_mgc_result(model_list, self.dataset, self.cell_type_tensor, self.adjancancy_matrix,
+                                              fname=f"output/pred_expr_GCN_{gene}_{self.name}")
+            truth = sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7)
+            correlation_per_gene[gene] = np.corrcoef(predicted.T, truth.T)[0,1]
+
+            #Plot the LR-ranking based on attention
             ranked_LR = hn.pl.lr_rank_in_mgc(model_list, self.expressed_lr_df,
                                              plot_cluster=False, repeat_attention_scale=True,
                                              fname=f"output/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="output/fce_cell_type_network_"+self.name+"_trained_on_"+gene+".png")
+                                                 fname="output/fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
                                                fname="output/delta_plot_"+self.name+"_trained_on_"+gene+".png")
+            for pair in lr_to_plot:
+                _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
+                                                     self.cell_type_names, plot_lr=pair, edge_thres=0.2,
+                                                     palette=hn.brca_default_color_celltype,
+                                                     fname="output/fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
+        with open("output/truth_correlation_"+self.name, 'wb') as f:
+            pickle.dump(correlation_per_gene, f)
 
 
         #Save all results
@@ -310,7 +326,8 @@ class holonet_pipeline:
 
 
 
-
+#Make sure the plot layout works correctly
+plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 
 
 print("args given: ", args)
@@ -333,13 +350,20 @@ elif args.dataset == 'resolve':
     organism = 'mouse'
 
 elif args.dataset == 'nanostring':
-    dataset = sq.read.nanostring(path="data/Lung5_Rep1",
+    full = sq.read.nanostring(path="data/Lung5_Rep1",
                        counts_file="Lung5_Rep1_exprMat_file.csv",
                        meta_file="Lung5_Rep1_metadata_file.csv",
                        fov_file="Lung5_Rep1_fov_positions_file.csv")
     organism = 'human'
+    name= 'Lung5_Rep1'
     #Subset nanostring data in 4 parts
-    print(dataset.obs.shape)
+    size_obs = full.X[0]
+    breakpoints = int(size_obs/4), int(size_obs/2), int((size_obs/4)*3)
+    for i, point in enumerate(breakpoints):
+        dataset = full[:point]
+
+        print(f"Analyzing chunk {i} from {name} from {organism}...")
+        holonet_pipeline(dataset, organism, name=name+"chunk"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
 else:
