@@ -376,9 +376,8 @@ elif args.dataset == 'nanostring':
     name= 'Lung5_Rep1'
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
-    print(full.obsm['spatial'][:, 0])
     max_x, max_y = np.max(full.obsm['spatial'][:, 0]), np.max(full.obsm['spatial'][:, 1])
-    half_x, half_Y = max_x/2, max_y/2
+    half_x, half_y = max_x/2, max_y/2
     chunks = {
     {'X' : [0, half_x], 'Y' : [0, half_y]},
     {'X': [half_x, max_x], 'Y': [0, half_y]},
@@ -386,6 +385,7 @@ elif args.dataset == 'nanostring':
     {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
     }
     for selection in chunks.items():
+        print(f"Selecting {selection}...")
         dataset = full[(full.obsm['spatial'][:, 0].isin([selection['X'][0], selection['X'][1]])) &
                        (full.obsm['spatial'][:, 1].isin([selection['Y'][0], selection['Y'][1]]))]
 
