@@ -375,8 +375,9 @@ elif args.dataset == 'nanostring':
     organism = 'human'
     name= 'Lung5_Rep1'
     #Subset nanostring data in 4 parts
-    size_obs = full.X[0]
-    max_x, max_y = max(full.obsm['spatial']['X']), max(full.obsm['spatial']['Y'])
+    size_obs = full.X.shape[0]
+    print(full.obsm['spatial']['X'])
+    max_x, max_y = np.max(full.obsm['spatial']['X']), np.max(full.obsm['spatial']['Y'])
     half_x, half_Y = max_x/2, max_y/2
     chunks = {
     {'X' : [0, half_x], 'Y' : [0, half_y]},
@@ -388,7 +389,7 @@ elif args.dataset == 'nanostring':
         dataset = full[(full.obsm['spatial']['X'].isin([selection['X'][0], selection['X'][1]])) &
                        (full.obsm['spatial']['Y'].isin([selection['Y'][0], selection['Y'][1]]))]
 
-        print(f"Analyzing chunk of size {dataset.X[0]} from {name} from {organism}...")
+        print(f"Analyzing chunk of size {dataset.X.shape[0]} from {name} from {organism}...")
         holonet_pipeline(dataset, organism, name=name+"chunk"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
