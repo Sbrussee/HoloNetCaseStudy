@@ -372,13 +372,14 @@ elif args.dataset == 'nanostring':
     size_obs = full.X.shape[0]
     max_x, max_y = np.max(full.obsm['spatial'][:, 0]), np.max(full.obsm['spatial'][:, 1])
     half_x, half_y = max_x/2, max_y/2
-    chunks = {
+    print(max_x, max_y, half_x, half_y)
+    chunks = [
     {'X' : [0, half_x], 'Y' : [0, half_y]},
     {'X': [half_x, max_x], 'Y': [0, half_y]},
     {'X': [0, half_x], 'Y' : [half_y, max_y]},
     {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
-    }
-    for selection in chunks.items():
+    ]
+    for selection in chunks:
         print(f"Selecting {selection}...")
         dataset = full[(full.obsm['spatial'][:, 0].isin([selection['X'][0], selection['X'][1]])) &
                        (full.obsm['spatial'][:, 1].isin([selection['Y'][0], selection['Y'][1]]))]
