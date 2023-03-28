@@ -79,12 +79,14 @@ class holonet_pipeline:
 
     def visualize_dataset(self):
         print("Visualizing dataset...")
-        #Plot cell type percentages
-        hn.pl.plot_cell_type_proportion(dataset, plot_cell_type='stroma', fname="cell_type_proportions.png")
+        for cell_type in dataset.obs['cell_type']:
+            #Plot cell type percentages
+            hn.pl.plot_cell_type_proportion(dataset, plot_cell_type=cell_type,
+                                            fname=f"cell_type_{cell_type}_proportions_{self.name}.png")
 
         #Cell type labels per spot
         sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
-        palette=hn.brca_default_color_celltype, save="spatial.png")
+        palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png")
 
 
 
@@ -395,6 +397,7 @@ elif args.dataset == 'nanostring':
                                 )]
 
         print(f"Analyzing chunk of size {dataset.X.shape[0]} from {name} from {organism}...")
+        print(dataset)
         holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
