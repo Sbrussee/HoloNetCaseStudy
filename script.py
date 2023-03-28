@@ -376,7 +376,7 @@ elif args.dataset == 'nanostring':
     chunks = {
     {'X' : [0, half_x], 'Y' : [0, half_y]},
     {'X': [half_x, max_x], 'Y': [0, half_y]},
-    {'X': [0. half_x], 'Y' : [half_y, max_y]},
+    {'X': [0, half_x], 'Y' : [half_y, max_y]},
     {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
     }
     for selection in chunks.items():
