@@ -284,11 +284,15 @@ class holonet_pipeline:
 
         correlation_per_gene = {}
         #Lets visualize each model
-        for model_list, gene in zip(MGC_model_type_GCN_list, self.used_gene_list):
+        for model_list, gene in zip(MGC_model_type_GCN_list, self.genes_to_plot):
             #Plot the predicted and true expression per gene
-            predicted = hn.pl.plot_mgc_result(model_list, self.dataset, self.cell_type_tensor, self.adjancancy_matrix,
+            plot = hn.pl.plot_mgc_result(model_list, self.dataset, self.cell_type_tensor, self.adjancancy_matrix,
                                               fname=f"pred_expr_GCN_{gene}_{self.name}")
-            truth = sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7)
+            sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7,
+                          save=f'true_expr_{gene}_{self.name}')
+            truth = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
+                                            used_case_name=gene)
+            predicted = hn.pr.get_mgc_result(model_list, self.cell_type_tensor, self.adjancancy_matrix)
             correlation_per_gene[gene] = np.corrcoef(predicted.T, truth.T)[0,1]
 
             #Plot the LR-ranking based on attention
