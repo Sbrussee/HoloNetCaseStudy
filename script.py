@@ -387,8 +387,17 @@ elif args.dataset == 'nanostring':
     ]
     for selection in chunks:
         print(f"Selecting {selection}...")
-        dataset = full[(full.obsm['spatial'][:, 0].isin([selection['X'][0], selection['X'][1]])) &
-                       (full.obsm['spatial'][:, 1].isin([selection['Y'][0], selection['Y'][1]]))]
+        dataset = full[np.where(np.logical_and(
+                                    np.logical_and(
+                                               full.obsm['spatial'][:, 0] >= selection['X'][0],
+                                               full.obsm['spatial'][:, 0] < selection['X'][1]]
+                                               ),
+                                    np.logical_and(
+                                               full.obsm['spatial'][:, 1] >= selection['Y'][0],
+                                               full.obsm['spatial'][:, 1] < selection['Y'][1]
+                                               )
+                                    )
+                                )]
 
         print(f"Analyzing chunk of size {dataset.X.shape[0]} from {name} from {organism}...")
         holonet_pipeline(dataset, organism, name=name+"chunk"+str(i), list_of_target_lr=[], list_of_target_genes=[])
