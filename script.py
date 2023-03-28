@@ -278,7 +278,7 @@ class holonet_pipeline:
 
         correlation_per_gene = {}
         #Lets visualize each model
-        for model_list, gene in zip(MGC_model_type_GCN_list, self.genes_to_plot):
+        for model_list, gene in zip(MGC_model_type_GCN_list, self.list_of_target_genes):
             #Plot the predicted and true expression per gene
             plot = hn.pl.plot_mgc_result(model_list, self.dataset, self.cell_type_tensor, self.adjancancy_matrix,
                                               fname=f"pred_expr_GCN_{gene}_{self.name}")
@@ -365,11 +365,19 @@ elif args.dataset == 'nanostring':
     name= 'Lung5_Rep1'
     #Subset nanostring data in 4 parts
     size_obs = full.X[0]
-    breakpoints = int(size_obs/4), int(size_obs/2), int((size_obs/4)*3)
-    for i, point in enumerate(breakpoints):
-        dataset = full[:point]
+    max_x, max_y = max(full.obsm['spatial'].X), max(full.obsm['spatial'].Y)
+    half_x, half_Y = max_x/2, max_y/2
+    chunks = {
+    {'X' : [0, half_x], 'Y' : [0, half_y]},
+    {'X': [half_x, max_x], 'Y': [0, half_y]},
+    {'X': [0. half_x], 'Y' : [half_y, max_y]},
+    {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
+    }
+    for selection in chunks.items():
+        dataset = full[(full.obsm['spatial'].X.isin([selection['X'][0], selection['X'][1]])) &&
+                       (full.obsm['spatial'].Y.isin([selection['Y'][0], selection['Y'][1]]))]
 
-        print(f"Analyzing chunk {i} from {name} from {organism}...")
+        print(f"Analyzing chunk of size {dataset.X[0]} from {name} from {organism}...")
         holonet_pipeline(dataset, organism, name=name+"chunk"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
