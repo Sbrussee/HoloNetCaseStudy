@@ -376,7 +376,7 @@ elif args.dataset == 'nanostring':
     name= 'Lung5_Rep1'
     #Subset nanostring data in 4 parts
     size_obs = full.X[0]
-    max_x, max_y = max(full.obsm['spatial'].X), max(full.obsm['spatial'].Y)
+    max_x, max_y = max(full.obsm['spatial']['X']), max(full.obsm['spatial']['Y'])
     half_x, half_Y = max_x/2, max_y/2
     chunks = {
     {'X' : [0, half_x], 'Y' : [0, half_y]},
