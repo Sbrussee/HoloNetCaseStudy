@@ -374,7 +374,7 @@ elif args.dataset == 'nanostring':
     {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
     }
     for selection in chunks.items():
-        dataset = full[(full.obsm['spatial'].X.isin([selection['X'][0], selection['X'][1]])) &&
+        dataset = full[(full.obsm['spatial'].X.isin([selection['X'][0], selection['X'][1]])) &
                        (full.obsm['spatial'].Y.isin([selection['Y'][0], selection['Y'][1]]))]
 
         print(f"Analyzing chunk of size {dataset.X[0]} from {name} from {organism}...")
