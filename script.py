@@ -39,6 +39,7 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 parser.add_argument('-g', '--genes', help='List of target genes to query')
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
+parser.add_argument('-t', '--top10', action='store_true', help='Whether to use the top 10 genes most influenced by FCEs as genes to query')
 args = parser.parse_args()
 
 
@@ -281,6 +282,10 @@ class holonet_pipeline:
                                                                  plot_gene_list=[gene], linewidths=5,
                                                                  fname="output/pred_correlation_"+gene+"_"+self.name+".png")
             only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
+            top10_genes = only_type_vs_GCN_all.head(10).index.values.tolist()
+
+        if args.top10 == True:
+            self.list_of_target_genes = top10_genes
 
         correlation_per_gene = {}
         #Lets visualize each model
@@ -298,19 +303,19 @@ class holonet_pipeline:
             #Plot the LR-ranking based on attention
             ranked_LR = hn.pl.lr_rank_in_mgc(model_list, self.expressed_lr_df,
                                              plot_cluster=False, repeat_attention_scale=True,
-                                             fname=f"ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
+                                             fname=f"figures/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
-                                                 fname="fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
+                                                 fname="figures/fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names, palette = hn.brca_default_color_celltype,
-                                               fname="delta_plot_"+self.name+"_trained_on_"+gene+".png")
+                                               fname="figures/delta_plot_"+self.name+"_trained_on_"+gene+".png")
             for pair in lr_to_plot:
                 _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                      self.cell_type_names, plot_lr=pair, edge_thres=0.2,
                                                      palette=hn.brca_default_color_celltype,
-                                                     fname="fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
+                                                     fname="figures/fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
         with open("output/truth_correlation_"+self.name, 'wb') as f:
             pickle.dump(correlation_per_gene, f)
 
