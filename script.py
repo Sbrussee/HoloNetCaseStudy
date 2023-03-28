@@ -390,7 +390,7 @@ elif args.dataset == 'nanostring':
         dataset = full[np.where(np.logical_and(
                                     np.logical_and(
                                                full.obsm['spatial'][:, 0] >= selection['X'][0],
-                                               full.obsm['spatial'][:, 0] < selection['X'][1]]
+                                               full.obsm['spatial'][:, 0] < selection['X'][1]
                                                ),
                                     np.logical_and(
                                                full.obsm['spatial'][:, 1] >= selection['Y'][0],
