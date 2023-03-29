@@ -12,6 +12,9 @@ import scanpy as sc
 import squidpy as sq
 import matplotlib.pyplot as plt
 import torch
+import tiledb
+import tiledbsoma
+
 
 #Remove warnings from output
 import warnings
@@ -339,6 +342,19 @@ class holonet_pipeline:
                               target_gene_name_list=self.used_gene_list)
 
 
+def read_nanostring_data(path):
+    #Set up pySoma
+    config = tiledb.Config()
+    ctx = tiledb.Ctx(config)
+    pySoma = tiledbsoma.SOMACollection(path, ctx=ctx)
+    #Read in data from the SOMA collection
+    norm_counts = pySoma['RNA_normalized'].X['data'].csr()
+    obs = pySoma['RNA'].obs.df()
+    coordinates = obs[['x_slide_mm', 'y_slide_mm']]
+    #Convert to squidpy format
+    adata = AnnData(norm, obs=obs, obsm={'spatial': coordinates}, dtype="float32")
+    print(f"loaded in {adata}")
+    return adata
 
 #Make sure the plot layout works correctly
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
