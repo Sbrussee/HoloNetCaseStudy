@@ -352,14 +352,14 @@ def read_nanostring_data(path):
     #Set up pySoma
     config = tiledb.Config()
     ctx = tiledb.Ctx(config)
-    print(dir(tiledbsoma))
-    pySoma = tiledbsoma.Experiment(path, ctx=ctx)
-    #Read in data from the SOMA collection
-    norm_counts = pySoma['RNA_normalized'].X['data'].csr()
-    obs = pySoma['RNA'].obs.df()
-    coordinates = obs[['x_slide_mm', 'y_slide_mm']]
-    #Convert to squidpy format
-    adata = AnnData(norm, obs=obs, obsm={'spatial': coordinates}, dtype="float32")
+    with tiledbsoma.open(path) as f:
+        pySoma = f.read()
+        #Read in data from the SOMA collection
+        norm_counts = pySoma['RNA_normalized'].X['data'].csr()
+        obs = pySoma['RNA'].obs.df()
+        coordinates = obs[['x_slide_mm', 'y_slide_mm']]
+        #Convert to squidpy format
+        adata = AnnData(norm, obs=obs, obsm={'spatial': coordinates}, dtype="float32")
     print(f"loaded in {adata}")
     return adata
 
