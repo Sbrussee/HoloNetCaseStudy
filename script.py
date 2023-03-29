@@ -353,7 +353,7 @@ def read_nanostring_data(path):
     config = tiledb.Config()
     ctx = tiledb.Ctx(config)
     print(dir(tiledbsoma))
-    pySoma = tiledbsoma.SOMACollection(path, ctx=ctx)
+    pySoma = tiledbsoma.Collection(path, ctx=ctx)
     #Read in data from the SOMA collection
     norm_counts = pySoma['RNA_normalized'].X['data'].csr()
     obs = pySoma['RNA'].obs.df()
