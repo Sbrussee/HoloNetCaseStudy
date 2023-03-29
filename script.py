@@ -386,12 +386,7 @@ elif args.dataset == 'resolve':
     organism = 'mouse'
 
 elif args.dataset == 'nanostring':
-    full = sq.read.nanostring(path="data/Lung5_Rep1",
-                       counts_file="Lung5_Rep1_exprMat_file.csv",
-                       meta_file="Lung5_Rep1_metadata_file.csv",
-                       fov_file="Lung5_Rep1_fov_positions_file.csv")
-    organism = 'human'
-    name= 'Lung5_Rep1'
+    full = read_nanostring_data("./data/LiverDataRelease")
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
