@@ -49,7 +49,7 @@ parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to ap
 parser.add_argument('-g', '--genes', help='List of target genes to query')
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
-parser.add_argument('-t', '--top10', action='store_true', help='Whether to use the top 10 genes most influenced by FCEs as genes to query')
+parser.add_argument('-t', '--top', type=int, help='Whether to use the top x genes most influenced by FCEs as genes to query', default=None)
 args = parser.parse_args()
 
 
@@ -294,9 +294,9 @@ class holonet_pipeline:
                                                                  plot_gene_list=[gene], linewidths=5,
                                                                  fname="output/pred_correlation_"+gene+"_"+self.name+".png")
             only_type_vs_GCN_all.to_csv("output/correlation_diff_df_"+name+".csv")
-            top10_genes = only_type_vs_GCN_all.head(10).index.values.tolist()
+            top_genes = only_type_vs_GCN_all.head(args.top).index.values.tolist()
 
-        if args.top10 == True:
+        if args.top != None:
             self.list_of_target_genes = top10_genes
 
         correlation_per_gene = {}
@@ -398,7 +398,10 @@ elif args.dataset == 'nanostring':
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
-    print(full)
+    #Split by tissue type
+    print(full['Run_Tissue_name'])
+    normal, disease = full[full['Run_Tissue_Name'] == 'NormalLiver'], full[full['Run_Tissue_Name'] != 'NormalLiver']
+    print(normal, disease)
     holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
