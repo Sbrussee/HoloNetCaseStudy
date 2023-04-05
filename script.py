@@ -394,6 +394,7 @@ elif args.dataset == 'resolve':
     organism = 'mouse'
 
 elif args.dataset == 'nanostring':
+    organism = 'human'
     full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad")
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
@@ -402,6 +403,9 @@ elif args.dataset == 'nanostring':
     normal, cancer = (full[full.obs['Run_Tissue_name'] == 'NormalLiver'],
                        full[full.obs['Run_Tissue_name'] != 'CancerousLiver'])
     print(normal, cancer)
+    #Delete the full dataset from memory
+    del full
+    #Pass each through holonet
     for dataset in [normal, cancer]:
         holonet_pipeline(dataset, organism, name="Nanostring_"+dataset.obs['Run_Tissue_name'].unique()[0],
          list_of_target_lr=[], list_of_target_genes=[])
