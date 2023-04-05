@@ -399,7 +399,7 @@ elif args.dataset == 'nanostring':
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
     #Split by tissue type
-    print(full.obs['Run_Tissue_name'])
+    print(full.obs['Run_Tissue_name'][:, 1])
     normal, cancer = (full[full.obs['Run_Tissue_Name'].values == 'NormalLiver'],
                        full[full.obs['Run_Tissue_Name'].values != 'CancerousLiver'])
     print(normal, cancer)
