@@ -1,3 +1,10 @@
+"""
+Apply HoloNet on Liver data
+2 Main experiments:
+Normal vs. Disease sample
+Parameter study (w_best, edge threshold)
+"""
+
 import HoloNet as hn
 
 import sys
@@ -387,36 +394,12 @@ elif args.dataset == 'resolve':
     organism = 'mouse'
 
 elif args.dataset == 'nanostring':
-    full = read_nanostring_data("./data/LiverDataRelease")
+    full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad")
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
-    max_x, max_y = np.max(full.obsm['spatial'][:, 0]), np.max(full.obsm['spatial'][:, 1])
-    half_x, half_y = max_x/2, max_y/2
-    print(max_x, max_y, half_x, half_y)
-    chunks = [
-    {'X' : [0, half_x], 'Y' : [0, half_y]},
-    {'X': [half_x, max_x], 'Y': [0, half_y]},
-    {'X': [0, half_x], 'Y' : [half_y, max_y]},
-    {'X' : [half_x, max_x], 'Y': [half_y, max_y]}
-    ]
-    for i, selection in  enumerate(chunks):
-        print(f"Selecting {selection}...")
-        dataset = full[np.where(np.logical_and(
-                                    np.logical_and(
-                                               full.obsm['spatial'][:, 0] >= selection['X'][0],
-                                               full.obsm['spatial'][:, 0] < selection['X'][1]
-                                               ),
-                                    np.logical_and(
-                                               full.obsm['spatial'][:, 1] >= selection['Y'][0],
-                                               full.obsm['spatial'][:, 1] < selection['Y'][1]
-                                               )
-                                    )
-                                )]
-
-        print(f"Analyzing chunk of size {dataset.X.shape[0]} from {name} from {organism}...")
-        print(dataset)
-        holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
+    print(full)
+    holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
 
 else:
