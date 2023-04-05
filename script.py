@@ -399,12 +399,12 @@ elif args.dataset == 'nanostring':
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
     #Split by tissue type
-    print(type(full.obs['Run_Tissue_name']))
-    print(full.obs['Run_Tissue_name'].values)
     normal, cancer = (full[full.obs['Run_Tissue_name'] == 'NormalLiver'],
                        full[full.obs['Run_Tissue_name'] != 'CancerousLiver'])
     print(normal, cancer)
-    holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
+    for dataset in [normal, cancer]:
+        holonet_pipeline(dataset, organism, name="Nanostring_"+dataset.obs['Run_Tissue_name'].unique()[0],
+         list_of_target_lr=[], list_of_target_genes=[])
 
 
 else:
