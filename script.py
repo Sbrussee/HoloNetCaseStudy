@@ -400,7 +400,8 @@ elif args.dataset == 'nanostring':
     print(f'full size {size_obs}')
     #Split by tissue type
     print(full['Run_Tissue_name'])
-    normal, disease = full[full['Run_Tissue_Name'] == 'NormalLiver'], full[full['Run_Tissue_Name'] != 'NormalLiver']
+    normal, disease = (full[full.obs['Run_Tissue_Name'] == 'NormalLiver'],
+                       full[full.obs['Run_Tissue_Name'] != 'NormalLiver'])
     print(normal, disease)
     holonet_pipeline(dataset, organism, name=name+"_chunk_"+str(i), list_of_target_lr=[], list_of_target_genes=[])
 
