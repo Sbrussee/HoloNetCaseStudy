@@ -416,7 +416,7 @@ elif args.dataset == 'nanostring':
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             print(fov.obs['cell_type'])
-            print(fov.obs['predicted_cell_type'])
+            print(fov.obsm['predicted_cell_type'])
             holonet_pipeline(fov, organism, name="Nanostring_"+tissue+str(fov),
              list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
