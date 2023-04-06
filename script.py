@@ -17,6 +17,7 @@ import pandas as pd
 import numpy as np
 import scanpy as sc
 import squidpy as sq
+import anndata as ad
 import matplotlib.pyplot as plt
 import torch
 import tiledb
@@ -61,16 +62,12 @@ class holonet_pipeline:
         - list_of_target_lr : List of LR-pairs to visualize
         - name: Name of the dataset (for use in plotting)
     """
-    def __init__(self, dataset, organism, list_of_target_genes=[],
-                list_of_target_lr=[], name="", celltype_key="cell_type",
-                predicted_celltype_key="predicted_cell_type"):
+    def __init__(self, dataset, organism, list_of_target_genes=[], list_of_target_lr=[], name=""):
         self.dataset = dataset
         self.organism = organism
         self.list_of_target_genes = list_of_target_genes
         self.list_of_target_lr = list_of_target_lr
         self.name = name
-        self.celltype_key = celltype_key
-        self.predicted_celltype_key = predicted_celltype_key
 
         self.visualize_dataset()
         #Load the Ligand-Receptor matrix
@@ -99,13 +96,13 @@ class holonet_pipeline:
 
     def visualize_dataset(self):
         print("Visualizing dataset...")
-        for cell_type in dataset.obs[self.celltype_key]:
+        for cell_type in dataset.obs['cell_type']:
             #Plot cell type percentages
             hn.pl.plot_cell_type_proportion(dataset, plot_cell_type=cell_type,
                                             fname=f"cell_type_{cell_type}_proportions_{self.name}.png")
 
         #Cell type labels per spot
-        sc.pl.spatial(dataset, color=[self.celltype_key], size=1.4, alpha=0.7,
+        sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
         palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png")
 
 
@@ -180,7 +177,7 @@ class holonet_pipeline:
         #We can also plot the cell-type CE network.
         #for this, we need to load the cell-type percentages per spot
         self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
-                                                                              continuous_cell_type_slot=self.predicted_celltype_key)
+                                                                              continuous_cell_type_slot='predicted_cell_type')
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
@@ -205,7 +202,7 @@ class holonet_pipeline:
         #Select all target genes
         self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
         #Now we need to build our feature matrix of cell types
-        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot=self.predicted_celltype_key)
+        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot="predicted_cell_type")
         #And the adjancancy matrix of our cell network
         self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
                                                      only_between_cell_type=True)
@@ -411,9 +408,11 @@ elif args.dataset == 'nanostring':
     del full
     #Pass each through holonet
     for dataset in [normal, cancer]:
-        holonet_pipeline(dataset, organism, name="Nanostring_"+dataset.obs['Run_Tissue_name'].unique()[0],
-         list_of_target_lr=[], list_of_target_genes=[], celltype_key='cellType',
-         predicted_celltype_key="cellType")
+        input = ad.Anndata(dataset.X, var=dataset.var)
+        input['cell_type'], input['predicted_cell_type'] = dataset.obs['cellType'], dataset.obs['cellType']
+        holonet_pipeline(input, organism, name="Nanostring_"+dataset.obs['Run_Tissue_name'].unique()[0],
+         list_of_target_lr=[], list_of_target_genes=[])
+
 
 
 else:
