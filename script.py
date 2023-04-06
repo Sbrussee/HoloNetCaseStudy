@@ -99,11 +99,12 @@ class holonet_pipeline:
         for cell_type in self.dataset.obs['cell_type']:
             #Plot cell type percentages
             hn.pl.plot_cell_type_proportion(self.dataset, plot_cell_type=cell_type,
-                                            fname=f"cell_type_{cell_type}_proportions_{self.name}.png")
+                                            fname=f"cell_type_{cell_type}_proportions_{self.name}.png",
+                                            spot_size=1)
 
         #Cell type labels per spot
         sc.pl.spatial(self.dataset, color=['cell_type'], size=1.4, alpha=0.7,
-        palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png")
+        palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png", spot_size=1)
 
 
 
