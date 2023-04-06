@@ -412,7 +412,7 @@ elif args.dataset == 'nanostring':
         fovs = np.unique(dataset.obs['fov'])
         print(fovs)
         for i in range(0,len(fovs),5):
-            fov = dataset[dataset['fov'].isin(fovs[i:i+5])]
+            fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
             print(fov)
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cellType'].apply(pd.Series.explode))
