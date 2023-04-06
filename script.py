@@ -380,6 +380,7 @@ print("Loading dataset...")
 if args.dataset == 'brca_visium':
     #Load example Visium dataset (24,923 genes, 3798 spots)
     dataset = hn.pp.load_brca_visium_10x()
+    print(dataset.obs['predicted_cell_type'])
     name = 'brca_visium'
     organism = 'human'
 
