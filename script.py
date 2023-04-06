@@ -409,7 +409,7 @@ elif args.dataset == 'nanostring':
     #Pass each through holonet
     for dataset in [normal, cancer]:
         input = ad.AnnData(dataset.X, var=dataset.var)
-        input['cell_type'], input['predicted_cell_type'] = dataset.obs['cellType'], dataset.obs['cellType']
+        input.obs['cell_type'], input.obs['predicted_cell_type'] = dataset.obs['cellType'], dataset.obs['cellType']
         holonet_pipeline(input, organism, name="Nanostring_"+dataset.obs['Run_Tissue_name'].unique()[0],
          list_of_target_lr=[], list_of_target_genes=[])
 
