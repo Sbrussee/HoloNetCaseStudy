@@ -68,7 +68,7 @@ class holonet_pipeline:
         self.list_of_target_genes = list_of_target_genes
         self.list_of_target_lr = list_of_target_lr
         self.name = name
-        self.celltype_key = celltyp_key
+        self.celltype_key = celltype_key
 
         self.visualize_dataset()
         #Load the Ligand-Receptor matrix
