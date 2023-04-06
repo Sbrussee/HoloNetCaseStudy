@@ -180,7 +180,7 @@ class holonet_pipeline:
         #We can also plot the cell-type CE network.
         #for this, we need to load the cell-type percentages per spot
         self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
-                                                                              continuous_cell_type_slot=predicted_celltype_key)
+                                                                              continuous_cell_type_slot=self.predicted_celltype_key)
 
         _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
@@ -205,7 +205,7 @@ class holonet_pipeline:
         #Select all target genes
         self.target_all_gene_expr, self.used_gene_list = hn.pr.get_gene_expr(self.dataset, self.expressed_lr_df, self.complex_db)
         #Now we need to build our feature matrix of cell types
-        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot=predicted_celltype_key)
+        self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot=self.predicted_celltype_key)
         #And the adjancancy matrix of our cell network
         self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
                                                      only_between_cell_type=True)
