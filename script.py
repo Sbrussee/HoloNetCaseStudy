@@ -46,9 +46,9 @@ else:
 parser = argparse.ArgumentParser(prog="GNN-Framework",
                                 description="Framework for testing GNN-based CCC inference methods")
 parser.add_argument("-d", '--dataset', default="brca_visium", help='Which dataset to analyze')
-parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet')
-parser.add_argument('-g', '--genes', help='List of target genes to query')
-parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query')
+parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet', default=True)
+parser.add_argument('-g', '--genes', help='List of target genes to query', default=[])
+parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query', default=[])
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
 parser.add_argument('-t', '--top', type=int, help='Whether to use the top x genes most influenced by FCEs as genes to query', default=None)
 args = parser.parse_args()
@@ -397,7 +397,7 @@ elif args.dataset == 'resolve':
 
 elif args.dataset == 'nanostring':
     organism = 'human'
-    full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad")
+    full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad", backed='r+')
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
@@ -410,14 +410,14 @@ elif args.dataset == 'nanostring':
     #Pass each through holonet
     for dataset in [normal, cancer]:
         fovs = np.unique(dataset.obs['fov'])
-        print(fovs)
+        tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
         for i in range(0,len(fovs),5):
             fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
             print(fov)
             fov.obs['cell_type'] = fov.obs['cellType']
-            fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cellType'].apply(pd.Series.explode))
-            holonet_pipeline(fov, organism, name="Nanostring_"+str(dataset.obs['Run_Tissue_name'].unique()[0]),
-             list_of_target_lr=[], list_of_target_genes=[])
+            fov.obsm['predicted_cell_type'] = pd.get_dummies(pd.Series(fov.obs['cellType']).apply(pd.Series.explode))
+            holonet_pipeline(fov, organism, name="Nanostring_"+tissue+str(fov),
+             list_of_target_lr=list_of_target_lr, list_of_target_genes=list_of_target_genes)
 
 
 
