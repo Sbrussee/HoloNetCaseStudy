@@ -61,12 +61,14 @@ class holonet_pipeline:
         - list_of_target_lr : List of LR-pairs to visualize
         - name: Name of the dataset (for use in plotting)
     """
-    def __init__(self, dataset, organism, list_of_target_genes=[], list_of_target_lr=[], name=""):
+    def __init__(self, dataset, organism, list_of_target_genes=[],
+                list_of_target_lr=[], name="", celltype_key="cell_type"):
         self.dataset = dataset
         self.organism = organism
         self.list_of_target_genes = list_of_target_genes
         self.list_of_target_lr = list_of_target_lr
         self.name = name
+        self.celltype_key = celltyp_key
 
         self.visualize_dataset()
         #Load the Ligand-Receptor matrix
@@ -95,13 +97,13 @@ class holonet_pipeline:
 
     def visualize_dataset(self):
         print("Visualizing dataset...")
-        for cell_type in dataset.obs['cell_type']:
+        for cell_type in dataset.obs[self.celltype_key]:
             #Plot cell type percentages
             hn.pl.plot_cell_type_proportion(dataset, plot_cell_type=cell_type,
                                             fname=f"cell_type_{cell_type}_proportions_{self.name}.png")
 
         #Cell type labels per spot
-        sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
+        sc.pl.spatial(dataset, color=[self.celltype_key], size=1.4, alpha=0.7,
         palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png")
 
 
