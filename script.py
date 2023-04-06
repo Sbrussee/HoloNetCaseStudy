@@ -410,6 +410,7 @@ elif args.dataset == 'nanostring':
     #Pass each through holonet
     for dataset in [normal, cancer]:
         fovs = np.unique(dataset.obs['fov'])
+        print(fovs)
         for i in range(fovs):
             fov = dataset[dataset['fov'] == i]
             fov.obs['cell_type'] = fov.obs['cellType']
