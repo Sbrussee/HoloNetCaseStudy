@@ -397,7 +397,7 @@ elif args.dataset == 'resolve':
 
 elif args.dataset == 'nanostring':
     organism = 'human'
-    full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad", backed='r+')
+    full = sc.read("/srv/scratch/chananchidas/LiverData/LiverData_RawNorm.h5ad")
     #Subset nanostring data in 4 parts
     size_obs = full.X.shape[0]
     print(f'full size {size_obs}')
