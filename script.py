@@ -96,13 +96,13 @@ class holonet_pipeline:
 
     def visualize_dataset(self):
         print("Visualizing dataset...")
-        for cell_type in dataset.obs['cell_type']:
+        for cell_type in self.dataset.obs['cell_type']:
             #Plot cell type percentages
-            hn.pl.plot_cell_type_proportion(dataset, plot_cell_type=cell_type,
+            hn.pl.plot_cell_type_proportion(self.dataset, plot_cell_type=cell_type,
                                             fname=f"cell_type_{cell_type}_proportions_{self.name}.png")
 
         #Cell type labels per spot
-        sc.pl.spatial(dataset, color=['cell_type'], size=1.4, alpha=0.7,
+        sc.pl.spatial(self.dataset, color=['cell_type'], size=1.4, alpha=0.7,
         palette=hn.brca_default_color_celltype, save=f"spatial_{self.name}.png")
 
 
@@ -213,7 +213,7 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}_truthexpr.png")
+        sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}_truthexpr.png")
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
