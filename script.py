@@ -416,6 +416,7 @@ elif args.dataset == 'nanostring':
             fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'], fov.obs['y_slide_mm']
+            fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             print(fov.obs['cell_type'])
             print(fov.obsm['predicted_cell_type'])
