@@ -357,20 +357,17 @@ class holonet_pipeline:
                               target_gene_name_list=self.used_gene_list)
 
 
-def read_nanostring_data(path):
-    #Set up pySoma
-    config = tiledb.Config()
-    ctx = tiledb.Ctx(config)
-    with tiledbsoma.open(path) as f:
-        pySoma = f.read()
-        #Read in data from the SOMA collection
-        norm_counts = pySoma['RNA_normalized'].X['data'].csr()
-        obs = pySoma['RNA'].obs.df()
-        coordinates = obs[['x_slide_mm', 'y_slide_mm']]
-        #Convert to squidpy format
-        adata = AnnData(norm, obs=obs, obsm={'spatial': coordinates}, dtype="float32")
-    print(f"loaded in {adata}")
-    return adata
+def detect_hvgs(dataset):
+    sc.pp.highly_variable_genes(dataset)
+    return dataset
+
+
+def lr_permutation_test(dataset, name):
+    lr_frame = sq.gr.ligrec(dataset, copy=False)
+    sq.pl.ligrec(lr_frame)
+    plt.savefig(f"Ligand_Receptor_perm_{name}")
+    plt.close()
+    return dataset
 
 #Make sure the plot layout works correctly
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
