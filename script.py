@@ -164,11 +164,11 @@ class holonet_pipeline:
         #We can use either degree or eigenvector centrality as CE strength per cell/spot
         #For example, let's see it for TGFB1:(TGFBR1+TGFBR2)
         if args.visualize == True:
-            hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
+            hn.pl.ce_hotspot_plot(self.ce_tensor, self.dataset,
             lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_'+self.name+"_"+target_lr+".png")
 
             #Now based on eigenvector centrality
-            hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
+            hn.pl.ce_hotspot_plot(self.ce_tensor, self.dataset,
             lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
             centrality_measure='eigenvector')
 
@@ -177,13 +177,13 @@ class holonet_pipeline:
         self.cell_type_mat, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset,
                                                                               continuous_cell_type_slot='predicted_cell_type')
 
-        _ = hn.pl.ce_cell_type_network_plot(self.filtered_ce_tensor, self.cell_type_mat, self.cell_type_names,
+        _ = hn.pl.ce_cell_type_network_plot(self.ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
         palette=hn.brca_default_color_celltype, fname='cell_type_network_'+self.name+"_"+target_lr+".png")
 
         #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
-        cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.filtered_ce_tensor)
-        self.clustered_expressed_LR_df, _ = hn.tl.cluster_lr_based_on_ce(self.filtered_ce_tensor, self.dataset, self.expressed_lr_df,
+        cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.ce_tensor)
+        self.clustered_expressed_LR_df, _ = hn.tl.cluster_lr_based_on_ce(self.ce_tensor, self.dataset, self.expressed_lr_df,
         w_best=self.w_best, cell_cci_centrality=cell_cci_centrality)
 
         #Now plot a dendogram using this clustering
@@ -203,7 +203,7 @@ class holonet_pipeline:
         #Now we need to build our feature matrix of cell types
         self.cell_type_tensor, self.cell_type_names = hn.pr.get_continuous_cell_type_tensor(self.dataset, continuous_cell_type_slot="predicted_cell_type")
         #And the adjancancy matrix of our cell network
-        self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.filtered_ce_tensor, cell_type_tensor=self.cell_type_tensor,
+        self.adjancancy_matrix = hn.pr.adj_normalize(adj=self.ce_tensor, cell_type_tensor=self.cell_type_tensor,
                                                      only_between_cell_type=True)
 
     def train_gcn_model(self, gene):
