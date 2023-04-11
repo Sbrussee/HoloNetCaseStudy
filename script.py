@@ -186,9 +186,10 @@ class holonet_pipeline:
         self.clustered_expressed_LR_df, _ = hn.tl.cluster_lr_based_on_ce(self.ce_tensor, self.dataset, self.expressed_lr_df,
         w_best=self.w_best, cell_cci_centrality=cell_cci_centrality)
 
-        #Now plot a dendogram using this clustering
-        hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
-        dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
+        if args.visualize == True:
+            #Now plot a dendogram using this clustering
+            hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
+            dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
 
         if args.visualize == True:
             #We can also plot the general CE hotspots for each ligand-receptor cluster
