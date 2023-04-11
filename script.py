@@ -69,7 +69,8 @@ class holonet_pipeline:
         self.list_of_target_lr = list_of_target_lr
         self.name = name
 
-        self.visualize_dataset()
+        if "Nanostring" not in self.name:
+            self.visualize_dataset()
         #Load the Ligand-Receptor matrix
         self.load_lr_df()
         #Create the Cellular Event tensor
@@ -404,7 +405,7 @@ elif args.dataset == 'nanostring':
     print(f'full size {size_obs}')
     #Split by tissue type
     normal, cancer = (full[full.obs['Run_Tissue_name'] == 'NormalLiver'],
-                       full[full.obs['Run_Tissue_name'] != 'CancerousLiver'])
+                       full[full.obs['Run_Tissue_name'] == 'CancerousLiver'])
     print(normal, cancer)
     #Delete the full dataset from memory
     del full
@@ -412,24 +413,22 @@ elif args.dataset == 'nanostring':
     for dataset in [normal, cancer]:
         fovs = np.unique(dataset.obs['fov'])
         tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
-        for i in range(0,len(fovs)-5,5):
-            fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
+        for i in range(0,len(fovs)-10,10):
+            fov = dataset[dataset.obs['fov'].isin(fovs[i:10])]
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'].to_frame(), fov.obs['y_slide_mm'].to_frame()
             fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
-            print(fov.obs['cell_type'])
-            print(fov.obsm['predicted_cell_type'])
-            print(f"Saving {tissue} fov {i} to {i+5}...")
+            print(f"Saving {tissue} fov {i} to {i+10}...")
             del fov.raw
             #Save this sub-dataset
-            fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+5}.h5ad')
+            fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+10}.h5ad')
     for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
         data = sc.read("data/"+dataset)
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
-        print(f"Analyzing {tissue} fov {i} to {i+5}...")
-        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+5),
+        print(f"Analyzing {tissue} fov {i} to {i+10}...")
+        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+10),
         list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
