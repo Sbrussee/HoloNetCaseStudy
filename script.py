@@ -52,6 +52,7 @@ parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to quer
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
 parser.add_argument('-t', '--top', type=int, help='Whether to use the top x genes most influenced by FCEs as genes to query', default=None)
 parser.add_argument('-v', '--visualize', action='store_true', help="Whether to plot the data spatially", default=False)
+parser.add_argument('-c', '--cluster', action='store_true', help='Whether to cluster LR-pairs and visualize them.', default=False)
 args = parser.parse_args()
 
 
@@ -181,17 +182,16 @@ class holonet_pipeline:
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
         fname='cell_type_network_'+self.name+"_"+target_lr+".png")
 
-        #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
-        cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.ce_tensor)
-        self.clustered_expressed_LR_df, _ = hn.tl.cluster_lr_based_on_ce(self.ce_tensor, self.dataset, self.expressed_lr_df,
-        w_best=self.w_best, cell_cci_centrality=cell_cci_centrality)
+        if args.cluster:
+            #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
+            cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.ce_tensor)
+            self.clustered_expressed_LR_df, _ = hn.tl.cluster_lr_based_on_ce(self.ce_tensor, self.dataset, self.expressed_lr_df,
+            w_best=self.w_best, cell_cci_centrality=cell_cci_centrality)
 
-        if args.visualize == True:
             #Now plot a dendogram using this clustering
             hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
             dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
 
-        if args.visualize == True:
             #We can also plot the general CE hotspots for each ligand-receptor cluster
             hn.pl.lr_cluster_ce_hotspot_plot(lr_df=self.clustered_expressed_LR_df,
             cell_cci_centrality=cell_cci_centrality,
