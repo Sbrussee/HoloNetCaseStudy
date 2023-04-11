@@ -429,7 +429,7 @@ elif args.dataset == 'nanostring':
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
         print(f"Analyzing {tissue} fov {i} to {i+5}...")
-        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(fov)+str(fov+5),
+        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+5),
         list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
