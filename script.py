@@ -146,23 +146,17 @@ class holonet_pipeline:
                 pickle.dump(self.elements_expr_df_dict, f)
 
         #Now we compute the tensor of communication events
+        self.ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
+                                                 self.elements_expr_df_dict, self.dataset)
+        #We can then filter the edges with low specifities
         if path.exists("output/ce_tensor_"+self.name+".pkl"):
             with open("output/ce_tensor_"+self.name+".pkl", 'rb') as f:
-                ce_tensor = pickle.load(f)
+                self.tensor = pickle.load(f)
         else:
-            ce_tensor = hn.tl.compute_ce_tensor(self.expressed_lr_df, self.w_best,
-                                                 self.elements_expr_df_dict, self.dataset)
-            with open('output/ce_tensor_'+self.name+".pkl", 'wb') as f:
-                pickle.dump(ce_tensor, f)
-        #We can then filter the edges with low specifities
-        if path.exists("output/filtered_ce_tensor_"+self.name+".pkl"):
-            with open("output/filtered_ce_tensor_"+self.name+".pkl", 'rb') as f:
-                self.filtered_ce_tensor = pickle.load(f)
-        else:
-            self.filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, self.dataset, self.expressed_lr_df,
-                                                             self.elements_expr_df_dict, self.w_best, n_pairs=50)
-            with open("output/filtered_ce_tensor_"+self.name+".pkl", 'wb') as f:
-                pickle.dump(self.filtered_ce_tensor, f)
+            hn.tl.filter_ce_tensor(self.ce_tensor, self.dataset, self.expressed_lr_df,
+                                    self.elements_expr_df_dict, self.w_best, n_pairs=50, copy=False)
+            with open("output/ce_tensor_"+self.name+".pkl", 'wb') as f:
+                pickle.dump(self.ce_tensor, f)
 
     def visualize_ce_tensors(self, target_lr=''):
         print("Visualizing CE tensors...")
