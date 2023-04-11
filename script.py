@@ -418,7 +418,7 @@ elif args.dataset == 'nanostring':
         fovs = np.unique(dataset.obs['fov'])
         tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
         for i in range(0,len(fovs)-10,10):
-            fov = dataset[dataset.obs['fov'].isin(fovs[i:10])]
+            fov = dataset[dataset.obs['fov'].isin(fovs[i:i+10])]
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'].to_frame(), fov.obs['y_slide_mm'].to_frame()
             fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
