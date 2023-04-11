@@ -119,7 +119,7 @@ class holonet_pipeline:
             self.expressed_lr_df = pd.read_csv("output/expressed_lr_df_" + self.name + ".csv")
         else:
             self.expressed_lr_df = hn.pp.get_expressed_lr_df(self.interaction_db, self.complex_db,
-                                                             self.dataset, expressed_prop=0.15)
+                                                             self.dataset, expressed_prop=0.1)
             self.expressed_lr_df.to_csv("output/expressed_lr_df_" + self.name + ".csv")
         print("LR dataframe shape: "+str(self.expressed_lr_df.shape))
 
@@ -424,6 +424,7 @@ elif args.dataset == 'nanostring':
             fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             print(f"Saving {tissue} fov {i} to {i+10}...")
+            print(fov)
             del fov.raw
             #Save this sub-dataset
             fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+10}.h5ad')
