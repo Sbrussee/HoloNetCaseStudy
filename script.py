@@ -365,7 +365,8 @@ def detect_hvgs(dataset):
 def lr_permutation_test(dataset, name):
     sc.pp.neighbors(dataset, copy=False)
     sc.tl.leiden(dataset, copy=False)
-    sq.gr.ligrec(dataset, cluster_key='leiden', copy=False)
+    sq.gr.ligrec(dataset, cluster_key='leiden',
+                 interactions=None, copy=False, use_raw=False)
     sq.pl.ligrec(dataset)
     plt.savefig(f"Ligand_Receptor_perm_{name}")
     plt.close()
