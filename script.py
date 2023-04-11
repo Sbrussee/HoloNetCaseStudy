@@ -412,7 +412,7 @@ elif args.dataset == 'nanostring':
         for i in range(0,len(fovs)-10,10):
             fov = dataset[dataset.obs['fov'].isin(fovs[i:i+10])]
             fov = detect_hvgs(fov)
-            fov = lr_permutation_test(fov)
+            fov = lr_permutation_test(fov, name="Nanostring_"+tissue+str(i)+str(i+10))
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'].to_frame(), fov.obs['y_slide_mm'].to_frame()
             fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
