@@ -363,6 +363,7 @@ def detect_hvgs(dataset):
 
 
 def lr_permutation_test(dataset, name):
+    sc.pp.neighbors(dataset, copy=False)
     sc.tl.leiden(dataset, copy=False)
     q.gr.ligrec(dataset, copy=False)
     sq.pl.ligrec(dataset)
