@@ -363,8 +363,9 @@ def detect_hvgs(dataset):
 
 
 def lr_permutation_test(dataset, name):
-    lr_frame = sq.gr.ligrec(dataset, copy=False)
-    sq.pl.ligrec(lr_frame)
+    sc.tl.leiden(dataset, copy=False)
+    q.gr.ligrec(dataset, copy=False)
+    sq.pl.ligrec(dataset)
     plt.savefig(f"Ligand_Receptor_perm_{name}")
     plt.close()
     return dataset
