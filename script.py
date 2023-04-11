@@ -51,6 +51,7 @@ parser.add_argument('-g', '--genes', help='List of target genes to query', defau
 parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query', default=[])
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
 parser.add_argument('-t', '--top', type=int, help='Whether to use the top x genes most influenced by FCEs as genes to query', default=None)
+parser.add_argument('-v', '--visualize', action='store_true', help="Whether to plot the data spatially", default=False)
 args = parser.parse_args()
 
 
@@ -69,7 +70,7 @@ class holonet_pipeline:
         self.list_of_target_lr = list_of_target_lr
         self.name = name
 
-        if "Nanostring" not in self.name:
+        if args.visualize == True:
             self.visualize_dataset()
         #Load the Ligand-Receptor matrix
         self.load_lr_df()
@@ -130,7 +131,8 @@ class holonet_pipeline:
         """
         #We can select the default one for visium, we could specify it ourselves too
         self.w_best = hn.tl.default_w_visium(self.dataset)
-        hn.pl.select_w(self.dataset, w_best=self.w_best)
+        if args.visualize == True:
+            hn.pl.select_w(self.dataset, w_best=self.w_best)
 
         #Now we can build the multi-view CCC network:
         #We construct a expression dataframe
@@ -167,14 +169,14 @@ class holonet_pipeline:
         #Now that we have our views, we can visualize each CE both on cell-level as well as on cell-type-level
         #We can use either degree or eigenvector centrality as CE strength per cell/spot
         #For example, let's see it for TGFB1:(TGFBR1+TGFBR2)
+        if args.visualize == True:
+            hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
+            lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_'+self.name+"_"+target_lr+".png")
 
-        hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_'+self.name+"_"+target_lr+".png")
-
-        #Now based on eigenvector centrality
-        hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
-        lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
-        centrality_measure='eigenvector')
+            #Now based on eigenvector centrality
+            hn.pl.ce_hotspot_plot(self.filtered_ce_tensor, self.dataset,
+            lr_df=self.expressed_lr_df, plot_lr=target_lr, fname='ce_hotspot_eigenvector_'+self.name+"_"+target_lr+".png",
+            centrality_measure='eigenvector')
 
         #We can also plot the cell-type CE network.
         #for this, we need to load the cell-type percentages per spot
@@ -194,10 +196,11 @@ class holonet_pipeline:
         hn.pl.lr_clustering_dendrogram(_, self.expressed_lr_df, [target_lr],
         dflt_col="#333333",fname="clust_dendogram_"+self.name+"_"+target_lr+".png")
 
-        #We can also plot the general CE hotspots for each ligand-receptor cluster
-        hn.pl.lr_cluster_ce_hotspot_plot(lr_df=self.clustered_expressed_LR_df,
-        cell_cci_centrality=cell_cci_centrality,
-        adata=self.dataset, fname='general_ce_hotspot_'+self.name+"_"+target_lr+".png")
+        if args.visualize == True:
+            #We can also plot the general CE hotspots for each ligand-receptor cluster
+            hn.pl.lr_cluster_ce_hotspot_plot(lr_df=self.clustered_expressed_LR_df,
+            cell_cci_centrality=cell_cci_centrality,
+            adata=self.dataset, fname='general_ce_hotspot_'+self.name+"_"+target_lr+".png")
 
     def preprocessing_for_gcn_model(self):
         print("Preprocessing for GCN model...")
@@ -215,7 +218,8 @@ class holonet_pipeline:
         #First, we need to select the target gene to predict
         target = hn.pr.get_one_case_expr(self.target_all_gene_expr, cases_list=self.used_gene_list,
                                          used_case_name=gene)
-        sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}_truthexpr.png")
+        if args.visualize:
+            sc.pl.spatial(self.dataset, color=[gene], cmap="Spectral_r", size=1.4, alpha=0.7, save=f"{gene}_truthexpr.png")
         #We can then train our model
         if torch.cuda.is_available():
             print("Started training using GPU...")
