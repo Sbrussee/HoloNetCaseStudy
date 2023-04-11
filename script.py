@@ -421,6 +421,7 @@ elif args.dataset == 'nanostring':
             print(fov.obs['cell_type'])
             print(fov.obsm['predicted_cell_type'])
             print(f"Saving {tissue} fov {i} to {i+5}...")
+            del fov.raw
             #Save this sub-dataset
             fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+5}.h5ad')
     for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
