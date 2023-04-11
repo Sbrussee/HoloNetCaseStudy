@@ -160,7 +160,7 @@ class holonet_pipeline:
                 self.filtered_ce_tensor = pickle.load(f)
         else:
             self.filtered_ce_tensor = hn.tl.filter_ce_tensor(ce_tensor, self.dataset, self.expressed_lr_df,
-                                                             self.elements_expr_df_dict, self.w_best)
+                                                             self.elements_expr_df_dict, self.w_best, n_pairs=50)
             with open("output/filtered_ce_tensor_"+self.name+".pkl", 'wb') as f:
                 pickle.dump(self.filtered_ce_tensor, f)
 
