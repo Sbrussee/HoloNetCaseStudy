@@ -179,7 +179,7 @@ class holonet_pipeline:
 
         _ = hn.pl.ce_cell_type_network_plot(self.ce_tensor, self.cell_type_mat, self.cell_type_names,
         lr_df=self.expressed_lr_df, plot_lr=target_lr, edge_thres=0.2,
-        palette=hn.brca_default_color_celltype, fname='cell_type_network_'+self.name+"_"+target_lr+".png")
+        fname='cell_type_network_'+self.name+"_"+target_lr+".png")
 
         #We can perform agglomerative clustering for the igand-receptor pairs based on the centrality measures.
         cell_cci_centrality = hn.tl.compute_ce_network_eigenvector_centrality(self.ce_tensor)
