@@ -412,7 +412,7 @@ elif args.dataset == 'nanostring':
     for dataset in [normal, cancer]:
         fovs = np.unique(dataset.obs['fov'])
         tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
-        for i in range(0,len(fovs),5):
+        for i in range(0,len(fovs)-5,5):
             fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'], fov.obs['y_slide_mm']
@@ -420,8 +420,10 @@ elif args.dataset == 'nanostring':
             fov.obsm['predicted_cell_type'] = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             print(fov.obs['cell_type'])
             print(fov.obsm['predicted_cell_type'])
-            holonet_pipeline(fov, organism, name="Nanostring_"+tissue+str(fov),
-             list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
+            #Save this sub-dataset
+            ad.write_h5ad(f'data/{tissue}_fov_{i}_to_{i+5}.h5ad')
+    holonet_pipeline(fov, organism, name="Nanostring_"+tissue+str(fov),
+    list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
 
