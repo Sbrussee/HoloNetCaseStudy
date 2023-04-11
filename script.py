@@ -421,9 +421,11 @@ elif args.dataset == 'nanostring':
             print(fov.obs['cell_type'])
             print(fov.obsm['predicted_cell_type'])
             #Save this sub-dataset
-            ad.write_h5ad(f'data/{tissue}_fov_{i}_to_{i+5}.h5ad')
-    holonet_pipeline(fov, organism, name="Nanostring_"+tissue+str(fov),
-    list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
+            ad.write_h5ad(f'data/ns_fov_{tissue}_{i}_to_{i+5}.h5ad')
+    for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
+        data = sc.read(dataset)
+        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(fov)+str(fov+5),
+        list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
 
