@@ -416,28 +416,25 @@ elif args.dataset == 'nanostring':
         tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
         for i in range(0,len(fovs)-10,10):
             fov = dataset[dataset.obs['fov'].isin(fovs[i:i+10])]
-            fov = detect_hvgs(fov)
-            fov = lr_permutation_test(fov, name="Nanostring_"+tissue+str(i)+str(i+10))
-            for column in fov.uns.keys():
-                print(fov.uns[column].columns)
-            fov.obs['cell_type'] = fov.obs['cellType']
-            fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'].to_frame(), fov.obs['y_slide_mm'].to_frame()
-            fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
-            predicted_cell_type = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
-            max_cell_type = predicted_cell_type.idxmax(axis=1)
-            fov.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
-            sys.exit()
             print(f"Saving {tissue} fov {i} to {i+10}...")
             print(fov.shape)
             del fov.raw
-
             #Save this sub-dataset
             fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+10}.h5ad')
+
     for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
         data = sc.read("data/"+dataset)
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
         print(f"Analyzing {tissue} fov {i} to {i+10}...")
+        data = detect_hvgs(data)
+        data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
+        data.obs['cell_type'] = data.obs['cellType']
+        data.obsm['X_spatial'], data.obsm['Y_spatial'] = data.obs['x_slide_mm'].to_frame(), data.obs['y_slide_mm'].to_frame()
+        data.obsm['spatial'] = pd.concat([data.obs['x_slide_mm'], data.obs['y_slide_mm']], axis=1)
+        predicted_cell_type = pd.get_dummies(data.obs['cell_type']).apply(pd.Series.explode)
+        max_cell_type = predicted_cell_type.idxmax(axis=1)
+        data.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
         holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+10),
         list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
