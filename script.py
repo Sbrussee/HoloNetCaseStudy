@@ -299,7 +299,7 @@ class holonet_pipeline:
             top_genes = only_type_vs_GCN_all.head(args.top).index.values.tolist()
 
         if args.top != None:
-            self.list_of_target_genes = top10_genes
+            self.list_of_target_genes = top_genes
 
         correlation_per_gene = {}
         #Lets visualize each model
