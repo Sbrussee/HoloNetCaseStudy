@@ -367,9 +367,8 @@ def lr_permutation_test(dataset, name):
     sc.tl.leiden(dataset, copy=False)
     sq.gr.ligrec(dataset, cluster_key='leiden',
                  interactions=None, copy=False, use_raw=False)
-    print(dataset.uns)
-    print(dataset.uns['means'])
-    print(dataset.uns['pvalues'])
+    print(dataset.uns['leiden_ligrec']['means'])
+    print(dataset.uns['leiden_ligrec']['pvalues'])
     #sq.pl.ligrec(dataset, cluster_key='leiden')
     #plt.savefig(f"Ligand_Receptor_perm_{name}")
     #plt.close()
