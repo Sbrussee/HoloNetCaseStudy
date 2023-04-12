@@ -426,7 +426,9 @@ elif args.dataset == 'nanostring':
             predicted_cell_type = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             max_cell_type = predicted_cell_type.idxmax(axis=1)
             fov.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
-            for column in fov.columns:
+            for column in fov.obsm.columns:
+                print(column)
+            for column in fov.obs.columns:
                 print(column)
             sys.exit()
             print(f"Saving {tissue} fov {i} to {i+10}...")
