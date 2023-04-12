@@ -93,7 +93,7 @@ class holonet_pipeline:
         model_per_gene = {}
         if len(list_of_target_genes) < 1:
             list_of_target_genes = self.used_gene_list
-        self.multitarget_training(list_of_target_genes, list_of_target_lr)
+        self.multitarget_training(list_of_target_genes, list_of_target_lr, name=name)
 
 
 
@@ -256,7 +256,7 @@ class holonet_pipeline:
 
 
 
-    def multitarget_training(self, genes_to_plot=[], lr_to_plot=[]):
+    def multitarget_training(self, genes_to_plot=[], lr_to_plot=[], name=""):
         print("Training GCN for all genes...")
         print(dirpath+"_tmp_save_model/"+self.name+"_GCN")
         if not path.isdir(os.path.join(dirpath, "_tmp_save_model/"+self.name+"_GCN")):
