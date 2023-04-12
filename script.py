@@ -419,18 +419,18 @@ elif args.dataset == 'nanostring':
             fov = detect_hvgs(fov)
             fov = lr_permutation_test(fov, name="Nanostring_"+tissue+str(i)+str(i+10))
             for column in fov.uns.keys():
-                print(fov.uns[column])
+                print(fov.uns[column].columns)
             fov.obs['cell_type'] = fov.obs['cellType']
             fov.obsm['X_spatial'], fov.obsm['Y_spatial'] = fov.obs['x_slide_mm'].to_frame(), fov.obs['y_slide_mm'].to_frame()
             fov.obsm['spatial'] = pd.concat([fov.obs['x_slide_mm'], fov.obs['y_slide_mm']], axis=1)
             predicted_cell_type = pd.get_dummies(fov.obs['cell_type']).apply(pd.Series.explode)
             max_cell_type = predicted_cell_type.idxmax(axis=1)
             fov.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
-            print(fov.obsm)
             sys.exit()
             print(f"Saving {tissue} fov {i} to {i+10}...")
             print(fov.shape)
             del fov.raw
+
             #Save this sub-dataset
             fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+10}.h5ad')
     for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
