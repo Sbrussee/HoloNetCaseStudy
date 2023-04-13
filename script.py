@@ -324,15 +324,13 @@ class holonet_pipeline:
                                              plot_lr_num=plot_lr_num)
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
-                                                 palette=hn.brca_default_color_celltype,
                                                  fname="figures/fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
             delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
-                                               self.cell_type_names, palette = hn.brca_default_color_celltype,
+                                               self.cell_type_names,
                                                fname="figures/delta_plot_"+self.name+"_trained_on_"+gene+".png")
             for pair in lr_to_plot:
                 _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                      self.cell_type_names, plot_lr=pair, edge_thres=0.2,
-                                                     palette=hn.brca_default_color_celltype,
                                                      fname="figures/fce_cell_type_network_"+pair+"_"+self.name+"_trained_on_"+gene+".png")
         with open("output/truth_correlation_"+self.name, 'wb') as f:
             pickle.dump(correlation_per_gene, f)
@@ -347,7 +345,6 @@ class holonet_pipeline:
                                                                      heatmap_plot_lr_num=15,
                                                                      edge_thres=0.2,
                                                                      save_fce_plot=True,
-                                                                     palette=hn.brca_default_color_celltype,
                                                                      figures_save_folder='./output/all_target/',
                                                                      project_name=name+"_all_targets")
 
