@@ -284,8 +284,8 @@ class holonet_pipeline:
         predicted_expr_only_type_df = hn.pr.get_mgc_result_for_multiple_targets(MGC_model_only_type_list,
                                                                         self.cell_type_tensor, self.adjancancy_matrix,
                                                                         self.used_gene_list, self.dataset)
-        predicted_expr_type_GCN_df.to_csv("output/pred_expr_GCN.csv")
-        predicted_expr_only_type_df.to_csv("output/pred_expr_noGCN.csv")
+        predicted_expr_type_GCN_df.to_csv("output/pred_expr_GCN"+name+".csv")
+        predicted_expr_only_type_df.to_csv("output/pred_expr_noGCN"+name+".csv")
 
 
         #We can compare the pearson correlation between the two predictions to identify CCC-dominated genes
@@ -432,6 +432,11 @@ elif args.dataset == 'nanostring':
         data = sc.read("data/"+dataset)
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
+        to_search = "Nanostring_"+tissue+str(i)+str(i+10)
+        already_done = [True if "truth_correlation_"+to_search in os.listdir('output/') else False]
+        if already_done:
+            print(f"{tissue} fov {i} to {i+10} already analyzed...")
+            break
         print(f"Analyzing {tissue} fov {i} to {i+10}...")
         data = detect_hvgs(data)
         data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
