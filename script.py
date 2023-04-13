@@ -316,9 +316,12 @@ class holonet_pipeline:
             correlation_per_gene[gene] = np.corrcoef(predicted.T, truth.T)[0,1]
 
             #Plot the LR-ranking based on attention
+            if len(model_list)*15 > len(self.expressed_lr_df.index):
+                plot_lr_num = len(self.expressed_lr_df.index) % 5
             ranked_LR = hn.pl.lr_rank_in_mgc(model_list, self.expressed_lr_df,
                                              plot_cluster=False, repeat_attention_scale=True,
-                                             fname=f"figures/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png")
+                                             fname=f"figures/ranked_LR_test_"+self.name+"_trained_on_"+gene+".png",
+                                             plot_lr_num=plot_lr_num)
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  palette=hn.brca_default_color_celltype,
