@@ -1,0 +1,3 @@
+==> 2023-03-30 09:26:52 <==
+# cmd: /home/sbrussee/mambaforge/bin/conda create --prefix=./GNNenv
+# conda version: 22.11.1

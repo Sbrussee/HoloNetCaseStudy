@@ -325,8 +325,13 @@ class holonet_pipeline:
             _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
                                                  self.cell_type_names, plot_lr='all', edge_thres=0.2,
                                                  fname="figures/fce_cell_type_network_all"+self.name+"_trained_on_"+gene+".png")
-            delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
+            try:
+                delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
                                                self.cell_type_names,
+                                               fname="figures/delta_plot_"+self.name+"_trained_on_"+gene+".png")
+            except:
+                delta_e = hn.pl.delta_e_proportion(model_list, self.cell_type_tensor, self.adjancancy_matrix,
+                                               self.cell_type_names, low_ylim=0.0, high_ylim=1.0,
                                                fname="figures/delta_plot_"+self.name+"_trained_on_"+gene+".png")
             for pair in lr_to_plot:
                 _ = hn.pl.fce_cell_type_network_plot(model_list, self.expressed_lr_df, self.cell_type_tensor, self.adjancancy_matrix,
