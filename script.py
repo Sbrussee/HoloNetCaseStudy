@@ -442,6 +442,7 @@ elif args.dataset == 'nanostring':
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
         to_search = "Nanostring_"+tissue+str(i)+str(i+10)
+        print(os.listdir('output/'))
         already_done = [True if "truth_correlation_"+to_search in os.listdir('output/') else False]
         if already_done:
             print(f"{tissue} fov {i} to {i+10} already analyzed...")
