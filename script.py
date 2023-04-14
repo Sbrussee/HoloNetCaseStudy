@@ -455,6 +455,9 @@ elif args.dataset == 'nanostring':
             print(f"Analyzing {tissue} fov {i} to {i+10}...")
             print(data)
             data.X = np.nan_to_num(data.X)
+            print(data.obs_names)
+            print(data.var_names)
+            
             data = data.dropna(axis=0)
             data = data.dropna(axis=1)
             sc.pp.log1p(data)
