@@ -469,4 +469,4 @@ plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
 if __name__ == "__main__":
     print(f"Analyzing {dataset} from {organism}...")
     holonet_pipeline(dataset, organism, name=name,
-                     list_of_target_lr=args.pairs list_of_target_genes=args.genes)
+                     list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
