@@ -456,6 +456,7 @@ elif args.dataset == 'nanostring':
             print(data)
             data.X = np.nan_to_num(data.X)
             sc.pp.log1p(data)
+            data.X = np.nan_to_num(data.X)
             data = detect_hvgs(data)
             data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
             data.obs['cell_type'] = data.obs['cellType']
