@@ -453,6 +453,7 @@ elif args.dataset == 'nanostring':
             print(f"{tissue} fov {i} to {i+10} already analyzed...")
         else:
             print(f"Analyzing {tissue} fov {i} to {i+10}...")
+            print(data)
             data = detect_hvgs(data)
             data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
             data.obs['cell_type'] = data.obs['cellType']
