@@ -445,18 +445,18 @@ elif args.dataset == 'nanostring':
         already_done = [True if "truth_correlation_"+to_search in os.listdir('output/') else False]
         if already_done:
             print(f"{tissue} fov {i} to {i+10} already analyzed...")
-            break
-        print(f"Analyzing {tissue} fov {i} to {i+10}...")
-        data = detect_hvgs(data)
-        data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
-        data.obs['cell_type'] = data.obs['cellType']
-        data.obsm['X_spatial'], data.obsm['Y_spatial'] = data.obs['x_slide_mm'].to_frame(), data.obs['y_slide_mm'].to_frame()
-        data.obsm['spatial'] = pd.concat([data.obs['x_slide_mm'], data.obs['y_slide_mm']], axis=1)
-        predicted_cell_type = pd.get_dummies(data.obs['cell_type']).apply(pd.Series.explode)
-        max_cell_type = predicted_cell_type.idxmax(axis=1)
-        data.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
-        holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+10),
-        list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
+        else:
+            print(f"Analyzing {tissue} fov {i} to {i+10}...")
+            data = detect_hvgs(data)
+            data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
+            data.obs['cell_type'] = data.obs['cellType']
+            data.obsm['X_spatial'], data.obsm['Y_spatial'] = data.obs['x_slide_mm'].to_frame(), data.obs['y_slide_mm'].to_frame()
+            data.obsm['spatial'] = pd.concat([data.obs['x_slide_mm'], data.obs['y_slide_mm']], axis=1)
+            predicted_cell_type = pd.get_dummies(data.obs['cell_type']).apply(pd.Series.explode)
+            max_cell_type = predicted_cell_type.idxmax(axis=1)
+            data.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
+            holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+10),
+            list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
 
