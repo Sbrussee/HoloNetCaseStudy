@@ -47,14 +47,23 @@ parser = argparse.ArgumentParser(prog="GNN-Framework",
                                 description="Framework for testing GNN-based CCC inference methods")
 parser.add_argument("-d", '--dataset', default="brca_visium", help='Which dataset to analyze')
 parser.add_argument('-hn', '--holonet', action='store_true', help='Whether to apply HoloNet', default=True)
-parser.add_argument('-g', '--genes', help='List of target genes to query', default=[])
-parser.add_argument('-p', '--pairs', help='List of ligand receptor pairs to query', default=[])
+parser.add_argument('-g', '--genes', type='str', help='List of target genes to query', default='')
+parser.add_argument('-p', '--pairs', type='str', help='List of ligand receptor pairs to query', default='')
 parser.add_argument('-a', '--all', action='store_true', help='Whether to plot all target genes')
 parser.add_argument('-t', '--top', type=int, help='Whether to use the top x genes most influenced by FCEs as genes to query', default=None)
 parser.add_argument('-v', '--visualize', action='store_true', help="Whether to plot the data spatially", default=False)
 parser.add_argument('-c', '--cluster', action='store_true', help='Whether to cluster LR-pairs and visualize them.', default=False)
 args = parser.parse_args()
 
+if args.genes != '':
+    args.genes = args.genes.split(',')
+else:
+    args.genes = []
+
+if args.pairs != '':
+    args.pairs = args.pairs.split(',')
+else:
+    args.pairs = []
 
 class holonet_pipeline:
     """
@@ -457,9 +466,7 @@ else:
 
 #Make sure the plot layout works correctly
 plt.rcParams.update({'figure.autolayout':True, 'savefig.bbox':'tight'})
-
-print(f"Analyzing {dataset} from {organism}...")
-list_of_target_lr = args.pairs.split(',')
-list_of_target_genes = args.genes.split(',')
-holonet_pipeline(dataset, organism, name=name,
-                 list_of_target_lr=list_of_target_lr, list_of_target_genes=list_of_target_genes)
+if __name__ == "__main__":
+    print(f"Analyzing {dataset} from {organism}...")
+    holonet_pipeline(dataset, organism, name=name,
+                     list_of_target_lr=args.pairs list_of_target_genes=args.genes)
