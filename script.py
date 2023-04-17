@@ -430,19 +430,19 @@ elif args.dataset == 'nanostring':
     for dataset in [normal, cancer]:
         fovs = np.unique(dataset.obs['fov'])
         tissue = str(dataset.obs['Run_Tissue_name'].unique()[0])
-        for i in range(0,len(fovs)-10,10):
-            fov = dataset[dataset.obs['fov'].isin(fovs[i:i+10])]
-            print(f"Saving {tissue} fov {i} to {i+10}...")
+        for i in range(0,len(fovs)-5,5):
+            fov = dataset[dataset.obs['fov'].isin(fovs[i:i+5])]
+            print(f"Saving {tissue} fov {i} to {i+5}...")
             print(fov.shape)
             del fov.raw
             #Save this sub-dataset
-            fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+10}.h5ad')
+            fov.write(f'data/ns_fov_{tissue}_{i}_to_{i+5}.h5ad')
 
     for dataset in [f for f in os.listdir("data/") if f.startswith("ns_fov_")]:
         data = sc.read("data/"+dataset)
         tissue = str(data.obs['Run_Tissue_name'].unique()[0])
         i = np.min(data.obs['fov'])
-        to_search = "truth_correlation_Nanostring_"+tissue+str(i)+str(i+10)
+        to_search = "truth_correlation_Nanostring_"+tissue+str(i)+str(i+5)
         print(to_search)
         #already_done = [True if to_search in os.listdir('output/') else False]
         if to_search in os.listdir('output/'):
@@ -451,9 +451,9 @@ elif args.dataset == 'nanostring':
         else:
             already_done = False
         if already_done:
-            print(f"{tissue} fov {i} to {i+10} already analyzed...")
+            print(f"{tissue} fov {i} to {i+5} already analyzed...")
         else:
-            print(f"Analyzing {tissue} fov {i} to {i+10}...")
+            print(f"Analyzing {tissue} fov {i} to {i+5}...")
             data.X = data.X.toarray() + np.abs(data.X.min())
             data.X = np.nan_to_num(data.X)
             print(['nan' in list(data.obs_names)])
@@ -462,7 +462,7 @@ elif args.dataset == 'nanostring':
             data.layers['log1p'] = np.nan_to_num(data.layers['log1p'])
             data.X = csr_matrix(data.X)
             data = detect_hvgs(data)
-            data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
+            data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+5))
             data.X = data.X
             data.obs['cell_type'] = data.obs['cellType']
             data.obsm['X_spatial'], data.obsm['Y_spatial'] = data.obs['x_slide_mm'].to_frame(), data.obs['y_slide_mm'].to_frame()
@@ -470,7 +470,7 @@ elif args.dataset == 'nanostring':
             predicted_cell_type = pd.get_dummies(data.obs['cell_type']).apply(pd.Series.explode)
             max_cell_type = predicted_cell_type.idxmax(axis=1)
             data.obsm['predicted_cell_type'] = pd.concat([predicted_cell_type, max_cell_type.rename('max')], axis=1)
-            holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+10),
+            holonet_pipeline(data, organism, name="Nanostring_"+tissue+str(i)+str(i+5),
             list_of_target_lr=args.pairs, list_of_target_genes=args.genes)
 
 
