@@ -373,7 +373,7 @@ class holonet_pipeline:
 
 
 def detect_hvgs(dataset):
-    sc.pp.highly_variable_genes(dataset.X)
+    sc.pp.highly_variable_genes(dataset)
     return dataset
 
 
