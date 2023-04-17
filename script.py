@@ -453,6 +453,7 @@ elif args.dataset == 'nanostring':
             print(f"{tissue} fov {i} to {i+10} already analyzed...")
         else:
             print(f"Analyzing {tissue} fov {i} to {i+10}...")
+            data.X = data.X + np.abs(data.X.min())
             data.X = np.nan_to_num(data.X)
             print(['nan' in list(data.obs_names)])
             print(['nan' in list(data.var_names)])
