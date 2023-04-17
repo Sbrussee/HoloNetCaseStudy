@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import torch
 import tiledb
 import tiledbsoma
+from scipy.sparse import csr_matrix
 
 
 #Remove warnings from output
@@ -459,8 +460,10 @@ elif args.dataset == 'nanostring':
             print(['nan' in list(data.var_names)])
             data.layers['log1p'] = sc.pp.log1p(data.X, copy=True)
             data.layers['log1p'] = np.nan_to_num(data.layers['log1p'])
+            data.X = csr_matrix(data.X)
             data = detect_hvgs(data)
             data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
+            data.X = data.X
             data.obs['cell_type'] = data.obs['cellType']
             data.obsm['X_spatial'], data.obsm['Y_spatial'] = data.obs['x_slide_mm'].to_frame(), data.obs['y_slide_mm'].to_frame()
             data.obsm['spatial'] = pd.concat([data.obs['x_slide_mm'], data.obs['y_slide_mm']], axis=1)
