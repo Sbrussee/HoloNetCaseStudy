@@ -373,7 +373,7 @@ class holonet_pipeline:
 
 
 def detect_hvgs(dataset):
-    sc.pp.highly_variable_genes(dataset)
+    sc.pp.highly_variable_genes(dataset.layers[''])
     return dataset
 
 
@@ -457,7 +457,8 @@ elif args.dataset == 'nanostring':
             data.X = np.nan_to_num(data.X)
             print(['nan' in list(data.obs_names)])
             print(['nan' in list(data.var_names)])
-            data = sc.pp.log1p(data, copy=True)
+            sc.pp.log1p(data, copy=False)
+            print(data)
             data = detect_hvgs(data)
             data = lr_permutation_test(data, name="Nanostring_"+tissue+str(i)+str(i+10))
             data.obs['cell_type'] = data.obs['cellType']
